@@ -5,10 +5,32 @@ import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import EmailIcon from '@mui/icons-material/Email';
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import Signup from './Signup';
 
 const Login = () => {
   const [btn,setBtn] = useState("");
-  const navigate = useNavigate()
+  const [userName,setUserName] = useState("");
+  const [password,setPassword] = useState("");
+  const [email,setEmail] = useState("")
+
+  const navigate = useNavigate();
+
+  const login = () => {
+    navigate("/faculty");
+    if(!userName || !password){
+      alert("Please Enter username nad password ")
+      return
+    }
+     axios.post("",{
+      userName,
+      password
+     }).then(res => {
+      console.log(res.data)
+     }).catch(err => {
+      console.log(err)
+     })
+  }
   return (
     <div className={btn == "sign-up-mode" ? "container sign-up-mode" : "container"}>
     <div className="forms-container">
@@ -17,31 +39,17 @@ const Login = () => {
           <h2 className="title">Sign in</h2>
           <div className="input-field">
            <PersonIcon/>
-            <input type="text" placeholder="Username" />
+            <input type="text" placeholder="Username"  value={userName}  onChange={(e) => setUserName(e.target.value)} />
           </div>
           <div className="input-field">
             <LockIcon/>
-            <input type="password" placeholder="Password" />
+            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
-          <input type="submit" value="Login" className="btn solid" onClick={() => navigate("/faculty/")} />
+          <input type="submit" value="Login" className="btn solid" onClick={() => login()} />
          
         </form>
-        <form action="#" className="sign-up-form">
-          <h2 className="title">Sign up</h2>
-          <div className="input-field">
-             <PersonIcon/> 
-            <input type="text" placeholder="Username" />
-          </div>
-          <div className="input-field">
-            <EmailIcon/>
-            <input type="email" placeholder="Email" />
-          </div>
-          <div className="input-field">
-          <LockIcon/>
-            <input type="password" placeholder="Password" />
-          </div>
-          <input type="submit" className="btn" value="Sign up" />
-        </form>
+       
+       <Signup/>
       </div>
     </div>
 

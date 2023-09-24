@@ -96,11 +96,11 @@ export const adminMenu = [
       icon: <NoteAltOutlinedIcon />,
       path: "/faculty/assignments",
     },
-    {
-      title: "Batches",
-      icon: <LayersIcon />,
-      path: "/faculty/batches",
-    },
+    // {
+    //   title: "Batches",
+    //   icon: <LayersIcon />,
+    //   path: "/faculty/batches",
+    // },
     {
       title: "Notice",
       icon: <NoteAddOutlinedIcon />,
