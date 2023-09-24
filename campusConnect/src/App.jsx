@@ -14,17 +14,22 @@ import {
   Home,
   CreateAttendance,
   CreateAssignment,
+  Admission
 } from "./Pages/index.ts";
 import { Layout } from "./Components/Layout/index.ts";
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+
 function App() {
   return (
     <>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
 
           <Route
-            path="/instructor/*"
+            path="/faculty/*"
             element={
               <Layout>
                 <Routes>
@@ -40,8 +45,45 @@ function App() {
               </Layout>
             }
           />
+       
+          <Route 
+          path="/clerk/*"
+          element={
+            <Layout>
+            <Routes>
+              <Route path="/admission" element={<Admission/>}/>
+            </Routes>
+            </Layout>
+          }
+
+          />
+
+          <Route 
+          path="/admin/*"
+          element={
+            <Layout>
+            <Routes>
+              <Route path="/admission" element={Admission}/>
+            </Routes>
+            </Layout>
+          }
+
+          />
+          <Route 
+          path="/student/*"
+          element={
+            <Layout>
+            <Routes>
+              <Route path="/admission" element={Admission}/>
+            </Routes>
+            </Layout>
+          }
+
+          />
+        
         </Routes>
       </BrowserRouter>
+      </LocalizationProvider>
     </>
   );
 }

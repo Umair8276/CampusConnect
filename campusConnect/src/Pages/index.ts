@@ -11,6 +11,7 @@ import CreateAttendance from "./CreateAttendance";
 import CreateAssignment from "./CreateAssignment";
 import InstructorProfile from "./InstructorProfile";
 import Signup from './Signup';
+import Admission from "./ClerkRole/Admission"
 export { 
     Home, 
     LandingPage, 
@@ -25,4 +26,5 @@ export {
     CreateAttendance,
     CreateAssignment,
     InstructorProfile,
+    Admission,
 };

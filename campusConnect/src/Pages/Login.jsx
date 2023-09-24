@@ -4,9 +4,11 @@ import login2 from "../assets/login2.svg";
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import EmailIcon from '@mui/icons-material/Email';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [btn,setBtn] = useState("")
+  const [btn,setBtn] = useState("");
+  const navigate = useNavigate()
   return (
     <div className={btn == "sign-up-mode" ? "container sign-up-mode" : "container"}>
     <div className="forms-container">
@@ -21,7 +23,7 @@ const Login = () => {
             <LockIcon/>
             <input type="password" placeholder="Password" />
           </div>
-          <input type="submit" value="Login" className="btn solid" />
+          <input type="submit" value="Login" className="btn solid" onClick={() => navigate("/faculty/")} />
          
         </form>
         <form action="#" className="sign-up-form">

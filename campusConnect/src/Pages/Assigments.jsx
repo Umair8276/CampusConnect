@@ -211,7 +211,7 @@ const Assigments = () => {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() =>
-              navigate("/instructor/create-assignment", { replace: true })
+              navigate("/faculty/create-assignment", { replace: true })
             }
           >
             Create Assignment

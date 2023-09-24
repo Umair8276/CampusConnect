@@ -51,64 +51,40 @@ const steps = [
 const Course = [
   {
     id: 1,
-    label: "B.Tech Specialization in Health Informatics",
+    label: "Computer ",
     value: 1,
   },
   {
     id: 2,
-    label: "B.Tech Specialization in Health Informatics",
+    label: "Mechanical",
     value: 2,
   },
   {
     id: 3,
-    label: "B.Tech Specialization in Health Informatics",
+    label: "Electronics",
     value: 3,
   },
   {
     id: 4,
-    label: "B.Tech Specialization in Health Informatics",
+    label: "Electrical",
     value: 4,
   },
   {
     id: 5,
-    label: "B.Tech Specialization in Health Informatics",
+    label: "Civil",
     value: 5,
   },
   {
     id: 6,
-    label: "B.Tech Specialization in Health Informatics",
+    label: "Pharmacy",
     value: 6,
   },
   {
     id: 7,
-    label: "B.Tech Specialization in Health Informatics",
+    label: "BSC It",
     value: 7,
   },
-  {
-    id: 8,
-    label: "B.Tech Specialization in Health Informatics",
-    value: 8,
-  },
-  {
-    id: 9,
-    label: "B.Tech Specialization in Health Informatics",
-    value: 9,
-  },
-  {
-    id: 10,
-    label: "B.Tech Specialization in Health Informatics",
-    value: 10,
-  },
-  {
-    id: 11,
-    label: "B.Tech Specialization in Health Informatics",
-    value: 11,
-  },
-  {
-    id: 12,
-    label: "B.Tech Specialization in Health Informatics",
-    value: 12,
-  },
+
 ];
 
 const CreateAssignment = () => {
@@ -146,7 +122,7 @@ const CreateAssignment = () => {
           <Tooltip title="back">
             <IconButton
               onClick={() =>
-                navigate("/instructor/assignments", { replace: true })
+                navigate("/faculty/assignments", { replace: true })
               }
               sx={{
                 marginLeft: "-2rem",
@@ -215,7 +191,7 @@ const CreateAssignment = () => {
                   }}
                   fontWeight="light"
                   onClick={() =>
-                    navigate("/instructor/assignments", { replace: true })
+                    navigate("/faculty/assignments", { replace: true })
                   }
                 >
                   Back to Dashboard
@@ -236,7 +212,7 @@ const CreateAssignment = () => {
                 }}
               >
                 <Typography fontWeight={500} fontSize={26}>
-                  Select Course
+                  Select Branch
                 </Typography>
                 <Paper
                   component="form"
@@ -255,13 +231,13 @@ const CreateAssignment = () => {
                     placeholder="Search Course"
                     inputProps={{ "aria-label": "search course" }}
                   />
-                  <IconButton
+                  {/* <IconButton
                     type="button"
                     sx={{ p: "10px" }}
                     aria-label="search"
                   >
                     <SearchIcon />
-                  </IconButton>
+                  </IconButton> */}
                 </Paper>
                 <FormControl
                   sx={{
@@ -298,7 +274,7 @@ const CreateAssignment = () => {
                 }}
               >
                 <Typography fontWeight={500} fontSize={26}>
-                  Select Batch & Subject
+                  Select Class
                 </Typography>
                 <FormControl
                   fullWidth
@@ -336,13 +312,13 @@ const CreateAssignment = () => {
                     placeholder="Search Subjects"
                     inputProps={{ "aria-label": "search subjects" }}
                   />
-                  <IconButton
+                  {/* <IconButton
                     type="button"
                     sx={{ p: "10px" }}
                     aria-label="search"
                   >
                     <SearchIcon />
-                  </IconButton>
+                  </IconButton> */}
                 </Paper>
                 <FormControl
                   sx={{
@@ -710,17 +686,19 @@ const CreateAssignment = () => {
                   </Paper>
                 </Stack>
               </Box>
-            </>
-          )}
+            </>)}
           {activeStep !== steps.length && (
-            <>
+            <div style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
               <Box
                 sx={{
                   display: "flex",
                   flexDirection: "row",
+                  justifyContent:"center",
+                  alignItems:"center",
                   pt: 2,
                   position: "absolute",
                   bottom: 0,
+                 
                 }}
               >
                 <Button
@@ -734,7 +712,7 @@ const CreateAssignment = () => {
                   {activeStep === steps.length - 1 ? "Finish" : "Next"}
                 </Button>
               </Box>
-            </>
+            </div>
           )}
         </Box>
       </Box>

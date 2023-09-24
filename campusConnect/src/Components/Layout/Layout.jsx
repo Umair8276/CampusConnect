@@ -1,12 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Header } from "./index.ts";
 import { Slider } from "./index.ts";
 import { Box,useTheme } from "@mui/material";
+import { useLocation, useParams } from "react-router-dom";
 
 const Layout = ({ children }) => {
-  
+  // const [url,setUrl] = useState("");
+  // const location = useLocation()
+  //  useEffect( () => {
+  //   setUrl(location.pathname);
+  //  },[])
   return (
     <Box display='flex' bgcolor='#F4EEEE' height='100%'>
+      {/* {
+        url == "/clerk"
+        ?
+
+      } */}
       <Slider />
       <Header />
       <Box  sx={{

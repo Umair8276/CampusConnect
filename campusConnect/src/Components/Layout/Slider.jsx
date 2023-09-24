@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Drawer,
   List,
@@ -20,41 +20,35 @@ import OnlinePredictionIcon from "@mui/icons-material/OnlinePrediction";
 import NoteAddOutlinedIcon from "@mui/icons-material/NoteAddOutlined";
 import NoteAltOutlinedIcon from "@mui/icons-material/NoteAltOutlined";
 import LayersIcon from "@mui/icons-material/Layers";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Rotate90DegreesCcw } from "@mui/icons-material";
+import {adminMenu,clerkMenu,studentMenu,facultyMenu} from "./SliderData"
+
 const Slider = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [menu,setMenu] = useState([]);
   const [openHomeDrawer, setHomeOpenDrawer] = useState(false);
   const navigate = useNavigate();
-  const lists = ["Home", "About", "Contact", "Sign Up", "Login"];
-  const menu = [
-    
-    {
-      title: "Attendance",
-      icon: <BackHandOutlinedIcon />,
-      path: "/instructor/attendance",
-    },
-    {
-      title: "Assignments",
-      icon: <NoteAltOutlinedIcon />,
-      path: "/instructor/assignments",
-    },
-    {
-      title: "Batches",
-      icon: <LayersIcon />,
-      path: "/instructor/batches",
-    },
-    // {
-    //   title: "Result",
-    //   icon: <SchoolIcon />,
-    //   path: "/instructor/result",
-    // },
-    {
-      title: "Notice",
-      icon: <NoteAddOutlinedIcon />,
-      path: "/instructor/notice",
-    },
-  ];
+  const location = useLocation()
+  
+  useEffect( () => {
+    let url = location.pathname
+    if(url.includes("clerk")){
+      setMenu(clerkMenu)
+    }
+    else if(url.includes("admin")){
+      setMenu(adminMenu)
+    }
+    else if(url.includes("student")){
+      setMenu(studentMenu)
+    }
+    else{
+      setMenu(facultyMenu)
+    }
+    console.log(menu)
+   
+  },[menu])
+ 
   
   const [selectedIndex, setSelectedIndex] = React.useState();
 
@@ -83,6 +77,7 @@ const Slider = () => {
         >
           {/* <TipsLogo /> */}
           <img src={TipsLogo}/>
+          {/* <h3>CampusCompass</h3> */}
         </IconButton>
 
         <List>
