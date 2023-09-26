@@ -46,7 +46,7 @@ const Signup = () => {
           <LockIcon/> 
             <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
           </div>
-          <input type="submit" className="btn" onClick={signUp} value="Sign up" />
+          <input type="submit" className="btn" onClick={signUp} value="Sign up" />.
         </form>
     </div>
   )
