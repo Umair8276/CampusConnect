@@ -1,9 +1,9 @@
 import "./App.css";
-import React from "react";
+import React, { useContext } from "react";
 import { BrowserRouter, Route, Routes, Router } from "react-router-dom";
 import {
   Login,
-  Signup,
+  StLogin,
   InstructorDashboard,
   Result,
   InstructorProfile,
@@ -14,20 +14,23 @@ import {
   Home,
   CreateAttendance,
   CreateAssignment,
-  Admission
+  Admission,
+  DisplayData
 } from "./Pages/index.ts";
 import { Layout } from "./Components/Layout/index.ts";
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { UserAuth } from "./Authentication/UserAuth";
+import { AppContext } from "./Context/AuthContext";
 
 function App() {
+  const {user} = useContext(AppContext)
   return (
     <>
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Login />} />
-
+          <Route path="/" element={user && user.role ?  <UserAuth /> :  <Login />} />
+          <Route path="/stlogin" element={ user && user.role ?  <UserAuth /> : <StLogin />} />
           <Route
             path="/faculty/*"
             element={
@@ -38,6 +41,7 @@ function App() {
                   <Route path="/attendance" element={<Attendance />} />
                   <Route path="/profile" element={<InstructorProfile />} />
                   <Route path="/batches" element={<Batches />} />
+                 
                   <Route path="/assignments" element={<Assignments />} />
                   <Route path="/create-attendance" element={<CreateAttendance />} />
                   <Route path="/create-assignment" element={<CreateAssignment />} />
@@ -52,6 +56,7 @@ function App() {
             <Layout>
             <Routes>
               <Route path="/admission" element={<Admission/>}/>
+              <Route path="/students" element={<DisplayData/>}/>
             </Routes>
             </Layout>
           }
@@ -82,7 +87,7 @@ function App() {
           />
         
         </Routes>
-      </BrowserRouter>
+      
       </LocalizationProvider>
     </>
   );

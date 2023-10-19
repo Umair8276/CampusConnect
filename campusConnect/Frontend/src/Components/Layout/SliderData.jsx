@@ -44,9 +44,9 @@ export const adminMenu = [
       path: "/clerk/admission",
     },
     {
-      title: "Assignments",
+      title: "Students",
       icon: <NoteAltOutlinedIcon />,
-      path: "/clerk/assignments",
+      path: "/clerk/students",
     },
     {
       title: "Batches",

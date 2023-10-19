@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Drawer,
   List,
@@ -7,9 +7,10 @@ import {
   ListItemText,
   IconButton,
   ListItemIcon,
-  Box
+  Box,
+  useColorScheme
 } from "@mui/material";
-import  TipsLogo  from "../../assets/tips.svg";
+import  Logo  from "../../assets/campusLogo.jpg";
 // icons
 import BackHandOutlinedIcon from '@mui/icons-material/BackHandOutlined';
 import PowerSettingsNewOutlinedIcon from '@mui/icons-material/PowerSettingsNewOutlined';
@@ -23,31 +24,41 @@ import LayersIcon from "@mui/icons-material/Layers";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Rotate90DegreesCcw } from "@mui/icons-material";
 import {adminMenu,clerkMenu,studentMenu,facultyMenu} from "./SliderData"
+import { AppContext } from "../../Context/AuthContext";
 
-const Slider = () => {
+const Slider = ({role}) => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [menu,setMenu] = useState([]);
   const [openHomeDrawer, setHomeOpenDrawer] = useState(false);
   const navigate = useNavigate();
   const location = useLocation()
+  const {dispatch} = useContext(AppContext)
+
+ 
   
   useEffect( () => {
     let url = location.pathname
-    if(url.includes("clerk")){
+    if(url.includes("clerk") || role=="clerkMenu"){
       setMenu(clerkMenu)
     }
-    else if(url.includes("admin")){
+    else if(url.includes("admin") || role=="adminMenu"){
       setMenu(adminMenu)
     }
-    else if(url.includes("student")){
+    else if(url.includes("student") || role=="studentMenu"){
       setMenu(studentMenu)
     }
     else{
       setMenu(facultyMenu)
     }
     console.log(menu)
+    // if(role=="facultyMenu")
+    // setMenu(facultyMenu)
    
   },[menu])
+
+  useEffect( () => {
+    console.log(role)
+  },[])
  
   
   const [selectedIndex, setSelectedIndex] = React.useState();
@@ -55,6 +66,11 @@ const Slider = () => {
   const handleListItemClick = (event, index) => {
     setSelectedIndex(index);
   };
+
+  const Logout = () => {
+    dispatch({type:"LOGOUT"})
+    navigate("/")
+  }
   return  (
     <>
       <Drawer
@@ -63,6 +79,7 @@ const Slider = () => {
         onClose={() => setHomeOpenDrawer(false)}
         sx={{
           width: 240,
+         
         }}
         variant="permanent"
         PaperProps={{
@@ -76,8 +93,10 @@ const Slider = () => {
           }}
         >
           {/* <TipsLogo /> */}
-          <img src={TipsLogo}/>
-          {/* <h3>CampusCompass</h3> */}
+          <h4 style={{color:"#16a085",fontSize:"20px"}}>Campus</h4>
+          <img src={Logo} style={{width:"70px",height:"70px"}}/>
+          <h4 style={{color:"#2980b9",fontSize:"20px"}}>Connect</h4>
+          {/* <h3><span style={{color:"blue",fontSize:"35px"}}>C</span>ampus<span style={{color:"red",fontSize:"35px"}}>C</span>onnect</h3> */}
         </IconButton>
 
         <List>
@@ -127,7 +146,7 @@ const Slider = () => {
               padding:'1rem',
               bgcolor:"#FFEFEF",
               color:"#F93333",
-            }}>
+            }} onClick={Logout}>
               <ListItemIcon >
                 <PowerSettingsNewOutlinedIcon sx={{
                   transform:"rotate(270deg)",

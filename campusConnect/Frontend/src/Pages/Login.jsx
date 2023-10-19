@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import "../Styles/Login.css";
 import login2 from "../assets/login2.svg";
 import PersonIcon from '@mui/icons-material/Person';
@@ -6,29 +6,36 @@ import LockIcon from '@mui/icons-material/Lock';
 import EmailIcon from '@mui/icons-material/Email';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
-import Signup from './Signup';
+import { AppContext } from './../Context/AuthContext';
 
 const Login = () => {
   const [btn,setBtn] = useState("");
-  const [userName,setUserName] = useState("");
   const [password,setPassword] = useState("");
-  const [email,setEmail] = useState("")
-
+  const [email,setEmail] = useState("");
+  const [error,setError] = useState("")
+  const {dispatch} = useContext(AppContext)
+  
   const navigate = useNavigate();
 
-  const login = () => {
-    navigate("/faculty");
-    if(!userName || !password){
-      alert("Please Enter username nad password ")
-      return
+  const login = (e) => {
+    console.log( email,password)
+    if(!email || !password){ 
+      setError("Please fill the Credential")
+      setTimeout( () => {
+        setError("")
+      },2000)
+      
     }
-     axios.post("",{
-      userName,
+    e.preventDefault()
+     axios.post("http://localhost:5000/api/fac/login",{
+      email,
       password
      }).then(res => {
       console.log(res.data)
+      dispatch({type:"LOGIN" ,payload:res.data.user})
      }).catch(err => {
-      console.log(err)
+      setError(err)
+      console.log(err) 
      })
   }
   return (
@@ -36,34 +43,43 @@ const Login = () => {
     <div className="forms-container">
       <div className="signin-signup">
         <form action="#" className="sign-in-form">
-          <h2 className="title">Sign in</h2>
+          <h2 className="title">Sign in </h2>
+          {
+            error?
+            <div style={{backgroundColor:"#EAB543",padding:"0.8rem",borderRadius:"5px",width:"55%"}}>
+            <h4 style={{color:"red"}}>{error}</h4>
+            </div>
+            :
+            <div></div>
+          }
+         
           <div className="input-field">
            <PersonIcon/>
-            <input type="text" placeholder="Username"  value={userName}  onChange={(e) => setUserName(e.target.value)} />
+            <input type="text" placeholder="Username"  value={email}  onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="input-field">
             <LockIcon/>
             <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
-          <input type="submit" value="Login" className="btn solid" onClick={() => login()} />
+          <input type="submit" value="Login" className="btn solid" onClick={(e) => login(e)} />
          
         </form>
-       
-       <Signup/>
       </div>
     </div>
-
+    {/* <Signup/> */}
     <div className="panels-container">
       <div className="panel left-panel">
         <div className="content">
           <h3>New here ?</h3>
           <p>
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Debitis,
-            ex ratione. Aliquid!
+          Are you a Student ? Click Below to login
           </p>
-          <button className="btn transparent" id="sign-up-btn" onClick={() => setBtn("sign-up-mode")}>
-            Sign up
-          </button>
+          <button className="btn transparent" id="sign-up-btn" onClick={() =>{
+            navigate("/stlogin")
+            setBtn("sign-up-mode")
+            }}>
+             Student Login
+            </button>
         </div>
         <img src={login2} className="image" alt="" />
       </div>

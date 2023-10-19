@@ -10,8 +10,9 @@ import Login from "./Login";
 import CreateAttendance from "./CreateAttendance";
 import CreateAssignment from "./CreateAssignment";
 import InstructorProfile from "./InstructorProfile";
-import Signup from './Signup';
+import StLogin from './StLogin';
 import Admission from "./ClerkRole/Admission"
+import DisplayData from "./ClerkRole/DisplayData";
 export { 
     Home, 
     LandingPage, 
@@ -22,9 +23,10 @@ export {
     Assignments,
     Attendance, 
     Login,
-    Signup,
+    StLogin,
     CreateAttendance,
     CreateAssignment,
     InstructorProfile,
     Admission,
+    DisplayData
 };

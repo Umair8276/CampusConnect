@@ -45,8 +45,8 @@ form {
 }
 
 form.sign-up-form {
-  opacity: 0;
-  z-index: 1;
+  width: 60%;
+  height: 100%;
 }
 
 form.sign-in-form {
