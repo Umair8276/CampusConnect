@@ -13,6 +13,7 @@ import InstructorProfile from "./InstructorProfile";
 import StLogin from './StLogin';
 import Admission from "./ClerkRole/Admission"
 import DisplayData from "./ClerkRole/DisplayData";
+import CreateNotice from "./CreateNotice";
 export { 
     Home, 
     LandingPage, 
@@ -28,5 +29,6 @@ export {
     CreateAssignment,
     InstructorProfile,
     Admission,
-    DisplayData
+    DisplayData,
+    CreateNotice
 };

@@ -29,8 +29,6 @@ app.use("/api/stu",AdmissionRoute)
 const AssignmentRoute= require("./Routes/AssignmentRoutes");
 app.use("/api/ass",AssignmentRoute)
 
+const NoticeRoute= require("./Routes/NoticeRoute");
+app.use("/api/notice",NoticeRoute)
 
-
-app.get("/" , async(req,res) => {
-    res.send("Backend Started")
-})

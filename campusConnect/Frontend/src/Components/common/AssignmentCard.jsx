@@ -15,8 +15,9 @@ import {
   DialogContentText,
   DialogActions,
 } from "@mui/material";
-import React from "react";
+import React, { useContext ,useEffect,useState} from "react";
 import UpdateOutlinedIcon from '@mui/icons-material/UpdateOutlined';
+import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -26,7 +27,13 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import VerifiedIcon from '@mui/icons-material/Verified';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
+import { AppContext } from "../../Context/AuthContext";
+import CircularProgress from '@mui/material/CircularProgress';
+import axios from "axios"
+import DoneIcon from '@mui/icons-material/Done';
 
 
 function createData(rollNumber, name) {
@@ -56,25 +63,103 @@ const AssignmentCard = ({
   time,
   percentage,
   type,
+  files,
+  id,
+  response,
+  lastDate,
+  scheduleDate
 }) => {
   const [openOngoing, setOpenOngoing] = React.useState(false);
   const [openResult, setOpenResult] = React.useState(false);
   const [openHistory, setOpenHistory] = React.useState(false);
   const [isActive, setIsActive] = React.useState(true);
   const [publish, setPublish] = React.useState(false);
+  const [isLoading,setIsLoading] = useState(false);
+  const [success,setSuccess] = useState(false)
+  const [file,setFile] = useState("");
+  const [userFile,setUserFile] = useState("")
+  const { user } = useContext(AppContext )
+
+  const VisuallyHiddenInput = styled("input")({
+    clip: "rect(0 0 0 0)",
+    clipPath: "inset(50%)",
+    height: 1,
+    overflow: "hidden",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    whiteSpace: "nowrap",
+    width: 1,
+  });
+  
 
   const handlePublishOpen = () => {
     setPublish(true);
   }
   const handlePublishClose = () => {
     setPublish(false);
-    
+
   }
   const OnPublish = () => {
     setPublish(false);
     setOpenResult(false);
-    
+
   }
+
+  const handleUpload = async (url) => {
+    setIsLoading(true)
+    const data = new FormData();
+    data.append("file", url);
+    data.append("upload_preset", "pehzflst");
+    data.append("cloud_name", "zaidsiddiqui");
+    fetch("https://api.cloudinary.com/v1_1/zaidsiddiqui/upload", {
+      method: "post",
+      body: data,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data.url);
+        setFile(data.url)
+      });
+      
+      uploadAssigment();
+      setSuccess(true)
+      setTimeout( () => {
+        setSuccess(false)
+      },2000)
+      setIsLoading(false)
+      
+  };
+  
+
+  const uploadAssigment = () => {
+    axios.post("http://localhost:5000/api/ass/checkass",{
+      studentId:user._id,
+      assignmentId:id,
+      file
+    }).then(res => {
+      console.log(res.data)
+    }).catch(err => {
+      console.log(err)
+    })
+  }
+
+
+
+  const getUploadedAss = () => {
+    axios.get(`http://localhost:5000/api/ass/completedass/${id}/${user._id}`).then(res => {
+      setUserFile(res.data.ass[0].file)
+    }).catch(err => {
+      console.log(err)
+    })
+  }
+
+
+
+  useEffect( () => {
+    getUploadedAss()
+  },[]);
+
 
   return (
     <>
@@ -84,22 +169,35 @@ const AssignmentCard = ({
           width: "340px",
           padding: "15px",
           borderRadius: "12px",
-          height: "400px",
+          height: "330px",
           display: "flex",
           flexDirection: "column",
           border: "1px solid #E6E6E6",
           gap: "2px",
         }}
       >
+        <Stack sx={{ display: "flex",
+                    flexDirection: "row",gap:"15px"}}>
+          <Typography fontWeight={550} fontSize={20} marginBottom={4}>
+         {
+           response.includes(user._id)
+           ?
+           <VerifiedIcon style={{color:"blue",fontSize:"2rem"}}/>
+           :
+           ""
+         }
+        </Typography>
         <Typography fontWeight={550} fontSize={20} marginBottom={4}>
           {title}
         </Typography>
+      
+        </Stack>
         <Typography
           sx={{
             color: "#9A9A9A",
           }}
         >
-          Course : {course}
+          Title : {title}
         </Typography>
         <Typography
           sx={{
@@ -134,7 +232,7 @@ const AssignmentCard = ({
             <CalendarMonthIcon />
             {date}
           </Stack>
-          <Stack
+          {/* <Stack
             sx={{
               color: "#D3D3D3",
               flexDirection: "row",
@@ -144,7 +242,7 @@ const AssignmentCard = ({
           >
             <AccessTimeFilledIcon />
             {time}
-          </Stack>
+          </Stack> */}
         </Stack>
         <Stack
           sx={{
@@ -153,18 +251,9 @@ const AssignmentCard = ({
             justifyContent: "space-between",
           }}
         >
-          <Typography fontSize={15.5}>Passing Percentage</Typography>
-          <Typography color="#3D70F5">{percentage}%</Typography>
+
         </Stack>
-        <LinearProgress
-          value={percentage}
-          variant="determinate"
-          sx={{
-            height: "8px",
-            borderRadius: "5px",
-            margin: "10px 0px",
-          }}
-        />
+
         {type == "ongoing" ? (
           <Button
             fullWidth
@@ -226,6 +315,12 @@ const AssignmentCard = ({
               margin: "3rem 2rem 2rem 2rem",
             }}
           >
+             {
+             success
+              &&
+            <Typography fontWeight={500} fontSize={20} color="green">
+                Assignment Uploaded Successfully
+            </Typography>}
             <Typography fontWeight={500} fontSize={32}>
               {title}
             </Typography>
@@ -238,26 +333,7 @@ const AssignmentCard = ({
             <Typography fontSize={20} fontWeight={450}>
               Batch : {batch}
             </Typography>
-            <Stack
-              marginTop={8}
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <Typography fontSize={24} fontWeight={500}>
-                Total Marks : 50
-              </Typography>
-
-              <Button
-                sx={{
-                  marginLeft: "auto",
-                }}
-              >
-                Passing Percentage : {percentage}%
-              </Button>
-            </Stack>
+   
             <Typography
               marginTop={6}
               fontWeight={400}
@@ -282,19 +358,9 @@ const AssignmentCard = ({
                   borderRadius: "6px",
                 }}
               >
-                {date}
+                {scheduleDate.substring(0,10)}
               </Button>
-              <Button
-                sx={{
-                  color: "black",
-                  bgcolor: "#EDEDF5",
-                  padding: "8px 10px",
-                  borderRadius: "6px",
-                }}
-                startIcon={<AccessTimeFilledIcon />}
-              >
-                {time}
-              </Button>
+             
             </Stack>
             <Typography
               marginTop={6}
@@ -323,21 +389,9 @@ const AssignmentCard = ({
               >
                 {date}
               </Button>
-              <Button
-                sx={{
-                  color: "black",
-                  bgcolor: "#EDEDF5",
-                  padding: "8px 10px",
-                  borderRadius: "6px",
-                }}
-                startIcon={<AccessTimeFilledIcon />}
-              >
-                {time}
-              </Button>
+          
             </Stack>
-            <Typography marginTop={10} fontWeight={450} fontSize={20}>
-              Student Status
-            </Typography>
+           
             <Stack
               sx={{
                 display: "flex",
@@ -346,8 +400,18 @@ const AssignmentCard = ({
                 marginTop: "1rem",
               }}
             >
-              <Button color="success">Completed : 55</Button>
-              <Button color="warning">Pending : 15</Button>
+              {
+                user.role == "student"
+                  ?
+                  <></>
+                  :
+                  <>
+                    <Button color="success">Completed : 55</Button>
+                    <Button color="warning">Pending : 15</Button>
+                  </>
+
+              }
+
             </Stack>
             <Typography marginTop={5} fontWeight={450} fontSize={20}>
               Resourses
@@ -356,11 +420,43 @@ const AssignmentCard = ({
               sx={{
                 display: "flex",
                 flexDirection: "row",
+                justifyContent:"flex-start",
+                alignItems:"center",
                 gap: 8,
                 marginTop: "1rem",
               }}
             >
-              <Button color="info" variant='outlined'>Assignment..pdf</Button>
+             
+                <Button color="info" variant='outlined'>
+                 <a href={files} target="_blank" style={{color:"blue"}}>Assignment..file</a>
+                 </Button>
+                 
+              <Button
+                  component="label"
+                  variant="outlined"
+                  startIcon={<CloudUploadIcon />}
+                  fullWidth
+                  sx={{
+                    // mt: "2rem",
+                    width:"300px"
+                  }}
+                >
+                 {response.includes(user._id) ? "Re-Upload file" : "Upload file"}
+                  <VisuallyHiddenInput type="file" onChange={(e) => handleUpload(e.target.files[0])}/>
+                </Button>
+                {
+                  isLoading 
+                  &&
+                  <CircularProgress color="secondary" size={25}/>
+                }
+
+                {response.includes(user._id)
+                ?
+                  <Button color="info" variant='outlined' sx={{width:"200px"}}>
+                 <a href={userFile} target="_blank" style={{color:"blue",textAlign:"center"}}> Your Response</a>
+                 </Button>
+                 :
+                 <></>}
             </Stack>
           </Box>
         </Drawer>
@@ -519,7 +615,7 @@ const AssignmentCard = ({
                       borderRadius: "6px",
                     }}
                   >
-                    {date}
+                    {lastDate}
                   </Button>
                   <Button
                     sx={{
@@ -544,22 +640,22 @@ const AssignmentCard = ({
                     marginTop: "1rem",
                   }}
                 >
-                  <Button color="success">Completed : 55</Button>
-                  <Button color="warning">Pending : 15</Button>
+                  <Button color="success">Completed : 78</Button>
+                  <Button color="warning">Pending : 14</Button>
                 </Stack>
                 <Typography marginTop={5} fontWeight={450} fontSize={20}>
-              Resourses
-            </Typography>
-            <Stack
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                gap: 8,
-                marginTop: "1rem",
-              }}
-            >
-              <Button color="info" variant='outlined'>Assignment..pdf</Button>
-            </Stack>
+                  Resourses
+                </Typography>
+                <Stack
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: 8,
+                    marginTop: "1rem",
+                  }}
+                >
+                  <Button color="info" variant='outlined'>Assignment..pdf</Button>
+                </Stack>
               </>
             ) : (
               <>
@@ -604,8 +700,8 @@ const AssignmentCard = ({
                             </Button>
                           </TableCell>
                           <TableCell component="th" scope="row">
-                            <TextField variant="outlined" type='number' helperText="Out of 50" 
-                             ></TextField>
+                            <TextField variant="outlined" type='number' helperText="Out of 50"
+                            ></TextField>
                           </TableCell>
                           <TableCell component="th" scope="row">
                             <Button>Save</Button>
@@ -637,10 +733,10 @@ const AssignmentCard = ({
                   </DialogContent>
                   <DialogActions >
                     <Button variant='outlined' sx={{
-                      fontWeight:'light',
+                      fontWeight: 'light',
                     }} onClick={handlePublishClose}>No</Button>
                     <Button variant='contained' sx={{
-                      fontWeight:'light',
+                      fontWeight: 'light',
                     }} onClick={OnPublish} autoFocus>Publish</Button>
                   </DialogActions>
 
@@ -833,18 +929,18 @@ const AssignmentCard = ({
                   <Button color="warning">Pending : 15</Button>
                 </Stack>
                 <Typography marginTop={5} fontWeight={450} fontSize={20}>
-              Resourses
-            </Typography>
-            <Stack
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                gap: 8,
-                marginTop: "1rem",
-              }}
-            >
-              <Button color="info" variant='outlined'>Assignment..pdf</Button>
-            </Stack>
+                  Resourses
+                </Typography>
+                <Stack
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: 8,
+                    marginTop: "1rem",
+                  }}
+                >
+                  <Button color="info" variant='outlined'>Assignment..pdf</Button>
+                </Stack>
               </>
             ) : (
               <>
@@ -884,7 +980,7 @@ const AssignmentCard = ({
                                   borderColor: "#EDEDF5",
                                 },
                               }}
-                              endIcon={<FileDownloadOutlinedIcon/>}
+                              endIcon={<FileDownloadOutlinedIcon />}
                             >
                               Download
                             </Button>
@@ -893,14 +989,14 @@ const AssignmentCard = ({
                             <TextField type="number" helperText="Out of 50" value={34} />
                           </TableCell>
                           <TableCell component="th" scope="row">
-                            <Button startIcon={<UpdateOutlinedIcon/>} variant='outlined'>Update</Button>
+                            <Button startIcon={<UpdateOutlinedIcon />} variant='outlined'>Update</Button>
                           </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
-                              
+
               </>
             )}
           </Box>

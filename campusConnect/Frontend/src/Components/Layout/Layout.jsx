@@ -11,7 +11,7 @@ const Layout = ({ children }) => {
   //   setUrl(location.pathname);
   //  },[])
   return (
-    <Box display='flex' bgcolor='#F4EEEE' height='100%'>
+    <Box display='flex'  height='100%'>
       {/* {
         url == "/clerk"
         ?

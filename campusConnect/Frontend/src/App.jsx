@@ -15,13 +15,15 @@ import {
   CreateAttendance,
   CreateAssignment,
   Admission,
-  DisplayData
+  DisplayData,
+  CreateNotice
 } from "./Pages/index.ts";
 import { Layout } from "./Components/Layout/index.ts";
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { UserAuth } from "./Authentication/UserAuth";
 import { AppContext } from "./Context/AuthContext";
+import { Assignment } from "@mui/icons-material";
 
 function App() {
   const {user} = useContext(AppContext)
@@ -43,6 +45,7 @@ function App() {
                   <Route path="/batches" element={<Batches />} />
                  
                   <Route path="/assignments" element={<Assignments />} />
+                  <Route path="/createnotice" element={<CreateNotice />} />
                   <Route path="/create-attendance" element={<CreateAttendance />} />
                   <Route path="/create-assignment" element={<CreateAssignment />} />
                 </Routes>
@@ -79,7 +82,9 @@ function App() {
           element={
             <Layout>
             <Routes>
-              <Route path="/admission" element={Admission}/>
+              <Route path="/admission" element={<Admission/>}/>
+              <Route path="/assignments" element={<Assignments/>}/>
+              <Route path="/notice" element={<Notice/>}/>
             </Routes>
             </Layout>
           }

@@ -19,7 +19,7 @@ export const UserAuth = () => {
                 ?
                 <Slider role="clerkMenu"/>
                 :
-                user.role == "admin"
+                user.role == "Admin"
                 ?
                 <Slider role="adminMenu"/>
                 :

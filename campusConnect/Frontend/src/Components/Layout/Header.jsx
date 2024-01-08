@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 // MUI Materials
 import {
@@ -28,6 +28,7 @@ import {
 // Components
 import Slider from "./Slider";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "../../Context/AuthContext";
 
 const Header = () => {
   const [value, setValue] = useState(0);
@@ -37,6 +38,7 @@ const Header = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const [openLogin, setOpenLogin] = useState(false);
+  const {user} = useContext(AppContext)
 
   const handleClickOpenLogin = () => {
     setOpenLogin(true);
@@ -79,7 +81,7 @@ const Header = () => {
       sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
     >
       <Toolbar>
-        <Typography variant="h5">Hii, Devendra</Typography>
+        <Typography variant="h5">{user.name}</Typography>
         <Box
           sx={{
             flexGrow: 0,

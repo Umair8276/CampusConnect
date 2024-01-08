@@ -53,7 +53,7 @@ const Attendance = () => {
             }}
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={()=>navigate('/instructor/create-attendance',{replace:true})}
+            onClick={()=>navigate('/faculty/create-attendance',{replace:true})}
           >
             Create
           </Button>

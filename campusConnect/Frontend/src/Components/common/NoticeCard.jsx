@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext ,useState,useEffect} from "react";
 import {
   Typography,
   Paper,
@@ -17,70 +17,145 @@ import {
   DialogActions,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from '@mui/icons-material/Delete';
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import { useNavigate } from "react-router-dom";
+import { AppContext } from "../../Context/AuthContext";
+import axios from "axios";
 
 const NoticeCard = () => {
   const [open, setOpen] = React.useState(false);
+  const navigate = useNavigate();
+  const [notices,setNotices] = useState([])
+  const [singleNotice,setSingleNotice] = useState([])
+  const {user} = useContext(AppContext)
 
+  const getNotice = () => {
+    axios.get(`http://localhost:5000/api/notice/getfacnotice/${user.dept}`)
+    .then(res => {
+      console.log(res.data)
+      setNotices(res.data.notice)
+    }).catch(err => {
+      console.log(err)
+    })
+  }
+  const getStuNotice = () => {
+    axios.get(`http://localhost:5000/api/notice/getnotice/${user.branch}/${user.stu_class}`)
+    .then(res => {
+      console.log(res.data)
+      setNotices(res.data.notice)
+    }).catch(err => {
+      console.log(err)
+    })
+  }
+  useEffect( () => {
+    getNotice()
+    getStuNotice()
+    
+  },[]);
+
+  const deleteNotice = (id) => {
+    axios.delete(`http://localhost:5000/api/notice/deletenotice/${id}`)
+    .then(res => {
+      console.log(res.data)
+    }).catch(err => {
+      console.log(err)
+    })
+    const filterNotice = notices.filter(data => {
+      return data._id!=id
+    });
+    setNotices(filterNotice)
+  }
+
+  const getSingleNotice = (id) => {
+     axios.get(`http://localhost:5000/api/notice/getnoticebyid/${id}`)
+     .then(res => {
+      console.log(res.data);
+      setSingleNotice(res.data.notice)
+     }).catch(err => {
+      console.log(err)
+     })
+  }
   return (
-    <>
-      <Paper
-        elevation={0.5}
-        sx={{
-          width: "340px",
-          padding: "15px",
-          borderRadius: "12px",
-          height: "auto",
-          display: "flex",
-          flexDirection: "column",
-          border: "1px solid #E6E6E6",
-          flexWrap: "wrap",
-          gap: "2px",
-        }}
-      >
-        <Typography fontWeight={550} fontSize={20} marginBottom={4}>
-          Notice for Students on X Topic
-        </Typography>
-        <Typography
+    <Box style={{display:"flex",flexDirection:"row",gap:"12px"}}>
+    {
+      notices.map( (notices,i) => {
+        return (
+          <Box  style={{display:"flex",flexDirection:"row"}}>
+          <Paper
+          elevation={0.5}
           sx={{
-            color: "#9A9A9A",
+            width: "340px",
+            padding: "15px",
+            borderRadius: "12px",
+            height: "auto",
+            display: "flex",
+            flexDirection: "column",
+            border: "1px solid #E6E6E6",
+            flexWrap: "wrap",
+            gap: "2px",
           }}
         >
-          Course : B.Tech Specialization in Health Informatics
-        </Typography>
-        <Typography
-          sx={{
-            color: "#9A9A9A",
-          }}
-        >
-          Batch : BECO-20
-        </Typography>
+          <Box style={{display:"flex",justifyContent:"space-between"}}>
+          <Typography fontWeight={550} fontSize={20} marginBottom={4}>
+           {notices.content}
+          </Typography >
+          {
+            user.role!="student" &&
+          <DeleteIcon style={{color:"red",cursor:"pointer"}} onClick={()=>deleteNotice(notices._id)}/>
+          }
 
-        <Stack
-          sx={{
-            color: "#D3D3D3",
-            flexDirection: "row",
-            alignItems: "center",
-            gap: "5px",
-            margin: "15px 0px",
-          }}
-        >
-          <CalendarMonthIcon />
-          25 july 2023
-        </Stack>
-        <Button
-          fullWidth
-          variant="contained"
-          onClick={() => setOpen(true)}
-          sx={{
-            bgcolor: "#3D70F5",
-            padding: "10px",
-            fontWeight: "light",
-            margin: "15px 0px",
-          }}
-        >
-          View Details
-        </Button>
+          </Box>
+          <Typography
+            sx={{
+              color: "#9A9A9A",
+            }}
+          >
+            Branch : {notices.branch}
+          </Typography>
+          <Typography
+            sx={{
+              color: "#9A9A9A",
+            }}
+          >
+            Class : {notices.classes}
+          </Typography>
+  
+          <Stack
+            sx={{
+              color: "#D3D3D3",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: "5px",
+              margin: "15px 0px",
+            }}
+          >
+            <CalendarMonthIcon />
+            {notices.createdAt}
+          </Stack>
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={() => {setOpen(true)
+             getSingleNotice(notices._id)
+            }}
+            sx={{
+              bgcolor: "#3D70F5",
+              padding: "10px",
+              fontWeight: "light",
+              margin: "15px 0px",
+            }}
+          >
+            View Details
+          </Button>
+          </Paper>
+          </Box>
+         
+        )
+
+      })
+    }
+ 
         <Drawer
           anchor="right"
           open={open}
@@ -103,7 +178,7 @@ const NoticeCard = () => {
             }}
           >
             <Typography fontWeight={500} fontSize={32}>
-              Notice for Students on X Topic
+             {singleNotice.content}
             </Typography>
             <Typography
               fontSize={20}
@@ -111,10 +186,10 @@ const NoticeCard = () => {
               fontWeight={450}
               marginTop={5}
             >
-              Course: B.Tech Specialization in Health Informatics
+              Branch:{singleNotice.branch}
             </Typography>
             <Typography color="#D3D3D3" fontSize={20} fontWeight={450}>
-              Batch : BECO-20
+              Class : {singleNotice.classes}
             </Typography>
             <Stack
               sx={{
@@ -126,7 +201,7 @@ const NoticeCard = () => {
               }}
             >
               <CalendarMonthIcon />
-              25 july 2023
+              {singleNotice.createdAt}
             </Stack>
             <Typography
               fontSize={24}
@@ -154,12 +229,14 @@ const NoticeCard = () => {
                 marginTop: "1rem",
               }}
             >
-              <Button color="info" variant='outlined'>Notice..pdf</Button>
+              <Button color="info" variant='outlined'>
+              <a href={singleNotice.file} target="_blank" style={{color:"blue"}}>Notice PDF</a>
+              </Button>
             </Stack>
           </Box>
         </Drawer>
-      </Paper>
-    </>
+      
+    </Box>
   );
 };
 

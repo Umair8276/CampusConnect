@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import {
   Box,
   Toolbar,
@@ -30,6 +30,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/material/styles";
+import {AppContext} from "../Context/AuthContext"
+import axios from "axios"
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
   clipPath: "inset(50%)",
@@ -89,18 +91,22 @@ const Course = [
 
 const CreateAssignment = () => {
   const navigate = useNavigate();
-  const [percentage, setPercentage] = React.useState("70");
+  const {user} = useContext(AppContext)
+  // const [percentage, setPercentage] = React.useState("70");
+  const [branch,setBranch] = useState("")
+  const [classes,setClasses] = useState("")
+  const [subject,setSubject] = useState("")
+  const [startDate,setStartDate] = useState("")
+  const [endDate,setEndDate] = useState("")
+  const [title,setTitle] = useState("")
+  const [startTime,setStartTime] = useState("")
+  const [endTime,setEndTime] = useState("")
+  const [file,setFile] = useState("");
 
-  const handleMarks = (event, newValue) => {
-    setPercentage(newValue);
-  };
 
   const [activeStep, setActiveStep] = React.useState(0);
   const [batch, setBatch] = React.useState("");
 
-  const ChangeBatch = (event) => {
-    setBatch(event.target.value);
-  };
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
@@ -108,6 +114,42 @@ const CreateAssignment = () => {
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
+
+  const postAssignment = () => {
+    console.log(classes)
+    axios.post("http://localhost:5000/api/ass/assignment",{
+      faculty:user._id,
+      subject,
+      content:title,
+      classes,
+      branch,
+      file,
+      lastDate:endDate
+    }).then(res => {
+       console.log(res.data)
+    }).catch(err => {
+      console.log(err)
+    })
+     
+    handleNext()
+  }
+
+  const handleUpload = async (url) => {
+    const data = new FormData();
+    data.append("file", url);
+    data.append("upload_preset", "pehzflst");
+    data.append("cloud_name", "zaidsiddiqui");
+    fetch("https://api.cloudinary.com/v1_1/zaidsiddiqui/upload", {
+      method: "post",
+      body: data,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data.url);
+        setFile(data.url)
+      });
+  };
+
   return (
     <>
       <Box
@@ -138,7 +180,7 @@ const CreateAssignment = () => {
         </Toolbar>
         <Box
           sx={{
-            minHeight: "45rem",
+            // minHeight: "25rem",
             bgcolor: "#fff",
             borderRadius: "15px",
             padding: "20px",
@@ -176,10 +218,9 @@ const CreateAssignment = () => {
                   Assignment Created Successfully
                 </Typography>
                 <Typography>
-                  New Assignment within B.Tech spcl. in Health Informatics with
-                  subject Network Engineering Added Succesfully with the
-                  following Name : BHI Health Informatics mid semester
-                  Assignment.
+                  New Assignment within {title} with
+                  subject {subject} Added Succesfully with the
+                  following Name : {title}
                 </Typography>
                 <Button
                   variant="contained"
@@ -212,51 +253,48 @@ const CreateAssignment = () => {
                 }}
               >
                 <Typography fontWeight={500} fontSize={26}>
-                  Select Branch
+                  Select Branch and class
                 </Typography>
-                <Paper
-                  component="form"
-                  elevation={0}
-                  sx={{
-                    p: "2px 4px",
-                    display: "flex",
-                    alignItems: "center",
-                    width: "auto",
-                    bgcolor: "#F1F1F1",
-                    borderRadius: "8px",
-                  }}
-                >
-                  <InputBase
-                    sx={{ ml: 1, flex: 1 }}
-                    placeholder="Search Course"
-                    inputProps={{ "aria-label": "search course" }}
-                  />
-                  {/* <IconButton
-                    type="button"
-                    sx={{ p: "10px" }}
-                    aria-label="search"
-                  >
-                    <SearchIcon />
-                  </IconButton> */}
-                </Paper>
+                
                 <FormControl
+                  fullWidth
                   sx={{
-                    height: "20rem",
-                    overflowY: "scroll",
-                    marginTop: "1rem",
+                    margin: "1rem 0rem",
                   }}
                 >
-                  <RadioGroup>
-                    {Course.map((course) => (
-                      <FormControlLabel
-                        color="#6A6A6A"
-                        key={course.id}
-                        value={course.value}
-                        control={<Radio color="info" />}
-                        label={course.label}
-                      />
-                    ))}
-                  </RadioGroup>
+                  <InputLabel id="batch">branch</InputLabel>
+                  <Select
+                    labelId="batch"
+                    value={branch}
+                    label="branch"
+                    onChange={(e) => setBranch(e.target.value)}
+                  >
+                    <MenuItem value={"Computer"}>Computer</MenuItem>
+                    <MenuItem value={"Mechanical"}>Mechanical</MenuItem>
+                    <MenuItem value={"Electrical"}>Electrical</MenuItem>
+                    <MenuItem value={"Electronics"}>Electronics</MenuItem>
+                  </Select>
+
+                  <FormControl
+                  fullWidth
+                  sx={{
+                    margin: "1rem 0rem",
+                  }}
+                >
+                  <InputLabel id="batch">Class</InputLabel>
+                  <Select
+                    labelId="class"
+                    value={classes}
+                    label="Class"
+                    onChange={(e) => setClasses(e.target.value)}
+                  >
+                    <MenuItem value={"FE"}>FE</MenuItem>
+                    <MenuItem value={"SE"}>SE</MenuItem>
+                    <MenuItem value={"TE"}>TE</MenuItem>
+                    <MenuItem value={"BE"}>BE</MenuItem>
+                  </Select>
+                </FormControl>
+
                 </FormControl>
               </Box>
             </>
@@ -266,7 +304,7 @@ const CreateAssignment = () => {
               <Box
                 sx={{
                   width: "28rem",
-                  height: "fit-content",
+                  height: "15rem",
                   margin: "5rem auto",
                   border: "1px solid #E1E1E1",
                   borderRadius: "8px",
@@ -274,7 +312,7 @@ const CreateAssignment = () => {
                 }}
               >
                 <Typography fontWeight={500} fontSize={26}>
-                  Select Class
+                  Select Subject
                 </Typography>
                 <FormControl
                   fullWidth
@@ -282,44 +320,20 @@ const CreateAssignment = () => {
                     margin: "1rem 0rem",
                   }}
                 >
-                  <InputLabel id="batch">Batch</InputLabel>
+                  <InputLabel id="batch">Subject</InputLabel>
                   <Select
-                    labelId="batch"
-                    value={batch}
-                    label="Batch"
-                    onChange={ChangeBatch}
+                    labelId="subject"
+                    value={subject}
+                    label="subject"
+                    onChange={(e) => setSubject(e.target.value)}
                   >
-                    <MenuItem value={10}>FECO-20</MenuItem>
-                    <MenuItem value={20}>SECO-20</MenuItem>
-                    <MenuItem value={30}>TECO-20</MenuItem>
-                    <MenuItem value={40}>BECO-20</MenuItem>
+                    <MenuItem value={"EM-3"}>Em-3</MenuItem>
+                    <MenuItem value={"Mechanics"}>Mechanics </MenuItem>
+                    <MenuItem value={"BEE"}>BEE</MenuItem>
+                    <MenuItem value={"Engg Drawing"}>Engg Drawing</MenuItem>
                   </Select>
                 </FormControl>
-                <Paper
-                  component="form"
-                  elevation={0}
-                  sx={{
-                    p: "2px 4px",
-                    display: "flex",
-                    alignItems: "center",
-                    width: "auto",
-                    bgcolor: "#F1F1F1",
-                    borderRadius: "8px",
-                  }}
-                >
-                  <InputBase
-                    sx={{ ml: 1, flex: 1 }}
-                    placeholder="Search Subjects"
-                    inputProps={{ "aria-label": "search subjects" }}
-                  />
-                  {/* <IconButton
-                    type="button"
-                    sx={{ p: "10px" }}
-                    aria-label="search"
-                  >
-                    <SearchIcon />
-                  </IconButton> */}
-                </Paper>
+             
                 <FormControl
                   sx={{
                     height: "20rem",
@@ -327,17 +341,7 @@ const CreateAssignment = () => {
                     marginTop: "1rem",
                   }}
                 >
-                  <RadioGroup>
-                    {Course.map((course) => (
-                      <FormControlLabel
-                        color="#6A6A6A"
-                        key={course.id}
-                        value={course.value}
-                        control={<Radio color="info" />}
-                        label={course.label}
-                      />
-                    ))}
-                  </RadioGroup>
+                  
                 </FormControl>
               </Box>
             </>
@@ -347,7 +351,7 @@ const CreateAssignment = () => {
               <Box
                 sx={{
                   width: "28rem",
-                  height: "fit-content",
+                  // height: "fit-content",
                   margin: "5rem auto",
                   border: "1px solid #E1E1E1",
                   borderRadius: "8px",
@@ -374,41 +378,14 @@ const CreateAssignment = () => {
                   <InputBase
                     sx={{ ml: 1, flex: 1 }}
                     placeholder="Title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                     inputProps={{ "aria-label": "title" }}
                     type="text"
                   />
                 </Paper>
-                <Paper
-                  component="form"
-                  elevation={0}
-                  sx={{
-                    p: "2px 4px",
-                    display: "flex",
-                    alignItems: "center",
-                    width: "auto",
-                    bgcolor: "#F1F1F1",
-                    borderRadius: "8px",
-                    margin: "2rem 0rem",
-                  }}
-                >
-                  <InputBase
-                    sx={{ ml: 1, flex: 1 }}
-                    placeholder="Total Marks"
-                    inputProps={{ "aria-label": "total marks" }}
-                    type="number"
-                  />
-                </Paper>
-                <Stack
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Typography fontSize={15.5}>Passing Percentage</Typography>
-                  <Typography color="#3D70F5">{percentage}%</Typography>
-                </Stack>
-                <Slider value={percentage} onChange={handleMarks} />
+        
+              
                 <Typography
                   marginTop={2}
                   fontWeight={400}
@@ -438,8 +415,10 @@ const CreateAssignment = () => {
                   >
                     <InputBase
                       sx={{ ml: 1, flex: 1 }}
-                      placeholder="Total Marks"
+                      placeholder="Enter Date"
+                      value={startDate}
                       inputProps={{ "aria-label": "search course" }}
+                      onChange={(e) => setStartDate(e.target.value)}
                       type="date"
                     />
                   </Paper>
@@ -457,7 +436,9 @@ const CreateAssignment = () => {
                   >
                     <InputBase
                       sx={{ ml: 1, flex: 1 }}
-                      placeholder="Total Marks"
+                      placeholder="Enter Due Date"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
                       inputProps={{ "aria-label": "search course" }}
                       type="time"
                     />
@@ -494,6 +475,8 @@ const CreateAssignment = () => {
                       sx={{ ml: 1, flex: 1 }}
                       placeholder="Total Marks"
                       inputProps={{ "aria-label": "search course" }}
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
                       type="date"
                     />
                   </Paper>
@@ -512,6 +495,8 @@ const CreateAssignment = () => {
                     <InputBase
                       sx={{ ml: 1, flex: 1 }}
                       placeholder="Total Marks"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
                       inputProps={{ "aria-label": "search course" }}
                       type="time"
                     />
@@ -527,8 +512,8 @@ const CreateAssignment = () => {
                   }}
                 >
                   Upload file
-                  <VisuallyHiddenInput type="file" />
-                </Button>
+                  <VisuallyHiddenInput type="file" onChange={(e)=> handleUpload(e.target.files[0])} />
+                </Button> 
               </Box>
             </>
           )}
@@ -555,30 +540,30 @@ const CreateAssignment = () => {
                   fontSize={20}
                   marginBottom={4}
                 >
-                  BHI Health Informatics mid semester
+                 {subject}
                 </Typography>
                 <Typography
                   sx={{
                     color: "#9A9A9A",
                   }}
                 >
-                  Course : B.Tech Spcl. in Health Informatics
+                  Branch : {branch}
                 </Typography>
                 <Typography
                   sx={{
                     color: "#9A9A9A",
                   }}
                 >
-                  Subject : Networking
+                  Subject : {subject}
                 </Typography>
                 <Typography
                   sx={{
                     color: "#9A9A9A",
                   }}
                 >
-                  Batch : BECO-20
+                  class : {classes}
                 </Typography>
-                <Typography fontSize={18} m='1rem 0rem' fontWeight={450}>Total Marks : 50</Typography>
+                {/* <Typography fontSize={18} m='1rem 0rem' fontWeight={450}>Total Marks : 50</Typography> */}
                 <Stack
           sx={{
             display: "flex",
@@ -586,8 +571,8 @@ const CreateAssignment = () => {
             gap:(5)
           }}
         >
-          <Typography fontSize={16}>Passing Percentage</Typography>
-          <Typography color="#3D70F5">70%</Typography>
+          {/* <Typography fontSize={16}>Passing Percentage</Typography>
+          <Typography color="#3D70F5">70%</Typography> */}
         </Stack>
         <Typography
                   marginTop={2}
@@ -618,7 +603,7 @@ const CreateAssignment = () => {
                       alignItems: "center",
                     }}
                   >
-                    12-01-2023<CalendarMonthIcon/>
+                    {startDate}<CalendarMonthIcon/>
                   </Paper>
                   <Paper
                      component="form"
@@ -634,7 +619,7 @@ const CreateAssignment = () => {
                        alignItems: "center",
                       }}
                   >
-                   12:00 PM<AccessTimeFilledIcon/>
+                   {startTime}<AccessTimeFilledIcon/>
                   </Paper>
                 </Stack>
                 <Typography
@@ -666,7 +651,7 @@ const CreateAssignment = () => {
                       alignItems: "center",
                     }}
                   >
-                    15-01-2023<CalendarMonthIcon/>
+                    {endDate}<CalendarMonthIcon/>
                   </Paper>
                   <Paper
                      component="form"
@@ -682,7 +667,7 @@ const CreateAssignment = () => {
                        alignItems: "center",
                       }}
                   >
-                   12:00 PM<AccessTimeFilledIcon/>
+                   {endTime}<AccessTimeFilledIcon/>
                   </Paper>
                 </Stack>
               </Box>
@@ -708,9 +693,13 @@ const CreateAssignment = () => {
                 >
                   Back
                 </Button>
-                <Button onClick={handleNext}>
-                  {activeStep === steps.length - 1 ? "Finish" : "Next"}
-                </Button>
+               
+                  {activeStep === steps.length - 1 ?
+                  <Button onClick={postAssignment}>Finish</Button>
+                 : 
+                 <Button onClick={handleNext}>Next</Button>
+                 }
+               
               </Box>
             </div>
           )}

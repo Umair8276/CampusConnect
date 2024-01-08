@@ -16,7 +16,7 @@ const Admission = async (req, res) => {
     // Finding Total COunt of a Student than Allocating Roll No
     let total_count;
     try {
-        total_count = await AdmissionModal.find({branch,stu_class}).count()
+        total_count = await AdmissionModal.find({branch,endYear}).count()
     } catch (error) {
         console.log(error)
     }
@@ -39,7 +39,7 @@ const Admission = async (req, res) => {
         mobileNo,
         stu_class,
         currentSem,
-        rollNo: total_count==0 ?  1 : total_count + 1
+        rollNo: total_count == 0 ?  1 : total_count + 1
     });
     try {
         await newAdmission.save();

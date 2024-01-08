@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -13,10 +13,12 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import AssignmentCard from "../Components/common/AssignmentCard";
+import { AppContext } from "../Context/AuthContext";
+import axios from "axios"
 
 const onGoingAssignments = [
   {
-    title: "Articulate structure of C++ and Java in Semester 1",
+    title: "Engg Drawing",
     course: "B.Tech Specialization in Health Informatics",
     subject: "Network Engineering",
     batch: "BECO-20",
@@ -184,11 +186,40 @@ const declareResultsAssignments = [
 const Assigments = () => {
   const [value, setValue] = React.useState(0);
   const navigate = useNavigate();
+  const { user } = useContext(AppContext)
+  const [data,setData] = useState([])
+  const [facData,setFacData] = useState([])
 
   function TabPanel(props) {
     const { children, value, page } = props;
     return <div>{page === value && children}</div>;
   }
+  const getAssignments = () => {
+    axios.get(`http://localhost:5000/api/ass/getass/${user.branch}/${user.stu_class}`).then(res => {
+      // console.log(res.data)
+      setData(res.data.data)
+    }).catch(err => {
+      console.log(err)
+    })
+  }
+
+  const getFacultyAss = () => {
+    axios.get(`http://localhost:5000/api/ass/getassbybranch/${user?.dept}`).then(res => {
+      console.log("getFacultyAss :",res.data)
+      setFacData(res.data.ass)
+    }).catch(err => {
+      console.log(err)
+    })
+  }
+
+
+ 
+
+  useEffect(() => {
+    console.log("Data :",data)
+    getFacultyAss()
+    getAssignments()
+  }, [])
 
   return (
     <>
@@ -204,18 +235,26 @@ const Assigments = () => {
           <Typography fontWeight={450} fontSize={35}>
             Assignment
           </Typography>
-          <Button
-            sx={{
-              marginLeft: "auto",
-            }}
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() =>
-              navigate("/faculty/create-assignment", { replace: true })
-            }
-          >
-            Create Assignment
-          </Button>
+          {
+            user.role == "student"
+              ?
+              <></>
+              :
+              <Button
+                sx={{
+                  marginLeft: "auto",
+                }}
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() =>
+                  navigate("/faculty/create-assignment", { replace: true })
+                }
+              >
+
+                Create Assignment
+              </Button>
+          }
+
         </Toolbar>
         <Box
           sx={{
@@ -236,17 +275,10 @@ const Assigments = () => {
           >
             <Tabs onChange={(e, value) => setValue(value)} value={value}>
               <Tab label="On-Going" />
-              <Tab label="Declare-Result" />
-              <Tab label="History" />
+              {/* <Tab label="Completed" /> */}
+              {/* <Tab label="History" /> */}
             </Tabs>
-            <TextField
-              label="Search"
-              size="small"
-              sx={{
-                marginLeft: "auto",
-                width: "25rem",
-              }}
-            />
+
             <Divider />
           </Box>
           <Box padding={2}>
@@ -260,19 +292,45 @@ const Assigments = () => {
                   gap: "5rem",
                 }}
               >
-                {onGoingAssignments.map((assignment, index) => (
+                {
+                  data.length > 0
+                  ?
+
+                data.map((assignment, index) => (
                   <AssignmentCard
                     key={index}
-                    title={assignment.title}
-                    course={assignment.course}
+                    title={assignment.content}
+                    branch={assignment.branch}
                     subject={assignment.subject}
-                    batch={assignment.batch}
-                    date={assignment.date}
-                    time={assignment.time}
-                    percentage={assignment.percentage}
+                    batch={assignment.classes}
+                    date={assignment.lastDate}
+                    files={assignment.file}
+                    id={assignment._id}
+                    response = {assignment.response}
+                    lastDate = {assignment.lastDate}
+                    scheduleDate = {assignment.createdAt}
+                    // time={assignment.time}
+                    // percentage={assignment.percentage}
                     type={"ongoing"}
                   />
-                ))}
+                ))
+              :
+              facData.map( (assignment,index) => {
+                return <AssignmentCard
+                key={index}
+                title={assignment.content}
+                branch={assignment.branch}
+                subject={assignment.subject}
+                batch={assignment.classes}
+                date={assignment.lastDate}
+                files={assignment.file}
+                id={assignment._id}
+                response = {assignment.response}
+                lastDate = {assignment.lastDate}
+                scheduleDate = {assignment.createdAt}
+                />
+              })
+              }
               </Box>
             </TabPanel>
             <TabPanel value={value} page={1}>

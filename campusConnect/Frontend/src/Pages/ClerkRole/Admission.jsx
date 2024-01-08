@@ -6,422 +6,584 @@ import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
+// import InputLabel from '@mui/material/InputLabel';
+// import MenuItem from '@mui/material/MenuItem';
+// import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { useTheme } from '@mui/material/styles';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import { useState } from 'react';
-import  axios  from 'axios';
+import axios from 'axios';
+import { Formik, useFormik } from "formik";
+import * as Yup from "yup";
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+// import Select from '@mui/material/Select';
 
 
 
-// export const Form2 = () => {
-//   const theme = useTheme();
-//   const [personName, setPersonName] = React.useState([]);
+export const Form1 = () => {
+  const [adYear, setAdYear] = useState("")
+  const [gradYear, setgradYear] = useState("");
+  const [success,setSuccess] = useState(false);
 
-//   const ITEM_HEIGHT = 48;
-//   const ITEM_PADDING_TOP = 8;
-//   const MenuProps = {
-//     PaperProps: {
-//       style: {
-//         maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-//         width: 250,
-//       },
-//     },
-//   };
-  
-
-//   const handleChange = (event) => {
-//      setPersonName(event.target.value)
-//   };
-  
-//   function getStyles(name, personName, theme) {
-//     return {
-//       fontWeight:
-//         personName.indexOf(name) === -1
-//           ? theme.typography.fontWeightRegular
-//           : theme.typography.fontWeightMedium,
-//     };
-//   }
-//   return(
-//     <>
-//     <Box
-//     component="form"
-//     style={{marginTop:"50px"}}
-//     sx={{
-//       '& .MuiTextField-root': { m: 1, width: '45ch' },
-//     }}
-//     noValidate
-//     autoComplete="off"
-//   >
-
-//     <div>
-  
-//       <TextField
-//           id="outlined-multiline-flexible"
-//           // label=////"Enrollment ID"
-//           multiline
-//           maxRows={4}
-//           defaultValue={43524324}
-//           inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} 
-//         />
-    
-
-//       <FormControl sx={{ m: 1, width: "200px"}}>
-//         <InputLabel id="demo-simple-select-autowidth-label">Stream</InputLabel>
-//         <Select
-//           labelId="demo-simple-select-autowidth-label"
-//           id="demo-simple-select-autowidth"
-//           // value={age}
-//           // onChange={handleChange}
-//           autoWidth
-//           label="Age"
-//         >
-//           <MenuItem value="">
-//             <em>None</em>
-//           </MenuItem>
-//           <MenuItem value={10}>Twenty</MenuItem>
-//           <MenuItem value={21}>Twenty one</MenuItem>
-//           <MenuItem value={22}>Twenty one and a half</MenuItem>
-//         </Select>
-//       </FormControl>
-
-//       <FormControl sx={{ m: 1, width: "200px"}}>
-//         <InputLabel id="demo-simple-select-autowidth-label">Year</InputLabel>
-//         <Select
-//           labelId="demo-simple-select-autowidth-label"
-//           id="demo-simple-select-autowidth"
-//           // value={age}
-//           // onChange={handleChange}
-//           autoWidth
-//           label="Age"
-//         >
-//           <MenuItem value="">
-//             <em>None</em>
-//           </MenuItem>
-//           <MenuItem value={10}>Twenty</MenuItem>
-//           <MenuItem value={21}>Twenty one</MenuItem>
-//           <MenuItem value={22}>Twenty one and a half</MenuItem>
-//         </Select>
-//       </FormControl>
-
-//       <FormControl sx={{ m: 1, width: "200px"}}>
-//         <InputLabel id="demo-simple-select-autowidth-label">Course</InputLabel>
-//         <Select
-//           labelId="demo-simple-select-autowidth-label"
-//           id="demo-simple-select-autowidth"
-//           // value={age}
-//           // onChange={handleChange}
-//           autoWidth
-//           label="Age"
-//         >
-//           <MenuItem value="">
-//             <em>None</em>
-//           </MenuItem>
-//           <MenuItem value={10}>Twenty</MenuItem>
-//           <MenuItem value={21}>Twenty one</MenuItem>
-//           <MenuItem value={22}>Twenty one and a half</MenuItem>
-//         </Select>
-//       </FormControl>
-
-    
-     
-       
-
-//     </div>
-
-// </Box>
-//     </>
-//   )
-
-// }
-
-export const Form1 = () => { 
-  const [adYear,setAdYear] = useState("")
-  const [gradYear,setgradYear] = useState("")
-  const [input,setInput] = useState({
-    firstName:"",
-    lastName:"",
-    department:"",
-    adYear:"",
-    gradYear:"",
-    mobileNo:"",
-    address:"",
-    state:"",
-    district:"",
-    city:"",
-    pincode:"",
-    ttFees:"",
-    feesPaid:"",
-    crntYear:"",
-    crntSem:""
+  const [input, setInput] = useState({
+    firstName: "",
+    lastName: "",
+    branch: "",
+    adYear: "",
+    gradYear: "",
+    mobileNo: "",
+    address: "",
+    state: "",
+    district: "",
+    city: "",
+    pincode: "",
+    ttFees: "",
+    feesPaid: "",
+    stu_class: "",
+    crntSem: ""
   })
 
-  // const data = {
-  //   input.firstName,
-  //   input.lastName,
-  //   input.department,
-  //   startYear:input.adYear,
-  //   endYear:input.gradYear,
-  //   input.mobileNo,
-  //   input.address,
-  //   input.state,
-  //   input.city,
-  //   input.district,
-  //   input.pincode,
-  //   totalFees:input.ttFees,
-  //   input.feesPaid,
-  //   currentYear:input.crntYear,
-  //   currentSem:input.crntSem,
+  const admissionSchema = Yup.object().shape({
+    firstName: Yup.string().min(4).max(30).required("Please Enter FirstName"),
+    lastName: Yup.string().min(4).max(30).required("Please Enter lastName"),
+    Branch: Yup.string().required("Please Enter Branch"),
+    adYear: Yup.number().required("Please Enter Admission Year"),
+    gradYear: Yup.number().required("Please Enter Graduation Year"),
+    mobileNo: Yup.number().required("Please Enter Mobile No"),
+    address: Yup.string().min(8).max(34).required("Please Enter address"),
+    state: Yup.string().min(10).max(15).required("Please Enter state"),
+    district: Yup.string().min(4).max(15).required("Please Enter district"),
+    city: Yup.string().min(4).max(15).required("Please Enter city"),
+    pincode: Yup.number().required("Please Enter pincode"),
+    ttFees: Yup.number().required("Please Enter Total Fees"),
+    feesPaid: Yup.number().required("Please Enter  Fees Paid"),
+    stu_class: Yup.string().required("Please Enter Class"),
+    crntSem: Yup.number().required("Please Enter Current Sem"),
 
-  // }
+  });
 
-  const handleChange = (e) => {
-    
-    const { name, value } = e.target;
-    setInput(prev => {
-      return { ...prev, [name]: value};
-    });
-    console.log(name , ":" , value)
-  }
-  const handleSubmit = () => {
-    axios.post("http://localhost:5000/api/stu/admission",{
-      firstName:input.firstName,
-      lastName:input.lastName,
-      department:input.department,
-      startYear:input.adYear,
-      endYear:input.gradYear,
-      mobileNo:input.mobileNo,
-      address:input.address,
-      state:input.state,
-      city:input.city,
-      district:input.district,
-      pincode:input.pincode,
-      totalFees:input.ttFees,
-      feesPaid:input.feesPaid,
-      currentYear:input.crntYear,
-      currentSem:input.crntSem,
-     
+  const initialValues = {
+    firstName: "",
+    lastName: "",
+    branch: "",
+    adYear: "",
+    gradYear: "",
+    mobileNo: "",
+    address: "",
+    state: "",
+    district: "",
+    city: "",
+    pincode: "",
+    ttFees: "",
+    feesPaid: "",
+    stu_class: "",
+    crntSem: ""
+  };
+
+  const {
+    values,
+    errors,
+    touched,
+    handleSubmit,
+    handleChange,
+    setFieldTouched,
+    isValid,
+  } = useFormik({
+    initialValues: initialValues,
+    validationSchema: admissionSchema,
+    onSubmit: (values) => {
+      console.log(values);
+      resetForm();
+    }
+  });
+
+
+
+  const handleSubmitt = () => {
+    console.log(values)
+    axios.post("http://localhost:5000/api/stu/admission", {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      branch: values.branch,
+      startYear: values.adYear,
+      endYear: values.gradYear,
+      mobileNo: values.mobileNo,
+      address: values.address,
+      state: values.state,
+      city: values.city,
+      district: values.district,
+      pincode: values.pincode,
+      totalFees: values.ttFees,
+      feesPaid: values.feesPaid,
+      stu_class: values.stu_class,
+      currentSem: values.crntSem,
+
     }).then(res => {
-      console.log(res.data)
+      console.log(res.data);
+      setSuccess(true)
     }).catch(err => {
       console.log(err)
     })
   }
-   return(
+  return (
     <>
-        <Box
-      component="form"
-      sx={{
-        '& .MuiTextField-root': { m: 1, width: '45ch' },
-      }}
-      noValidate
-      autoComplete="off"
-    >
-      <div>
-      
-      <TextField
-          id="outlined-multiline-flexible"
-          label="Enter FirstName"
-          multiline
-          maxRows={4}
-          name='firstName'
-          value={input.firstName}
-          onChange={handleChange}
-          inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} 
-        />
-        <TextField
-          id="outlined-multiline-flexible"
-          label="Enter LastName"
-          multiline
-          name='lastName'
-          value={input.lastName}
-          onChange={handleChange}
-          maxRows={4}
-        />
-      <TextField
-          id="outlined-multiline-flexible"
-          label="Enter MobileNo"
-          name='mobileNo'
-          multiline
-          value={input.mobileNo}
-          onChange={handleChange}
-          maxRows={4}
-        />
-      <TextField
-          id="outlined-multiline-flexible"
-          label="Enter Department"
-          name='department'
-          value={input.department}
-          onChange={handleChange}
-          multiline
-          maxRows={4}
-        />
-      <TextField
-          id="outlined-multiline-flexible"
-          label="Enter Admission Year"
-          name='adYear'
-          value={input.adYear}
-          onChange={handleChange}
-          multiline
-          maxRows={4}
-        />
-      <TextField
-          id="outlined-multiline-flexible"
-          label="Enter Graduation Year"
-          name='gradYear'
-          value={input.gradYear}
-          onChange={handleChange}
-          multiline
-          maxRows={4}
-        />
-     {/* <DatePicker label="Admission Year" value={adYear}  onChange={(e) => setAdYear(e.target.value)}  />
-     <DatePicker label="Graduation Year" value={gradYear}   onChange={(e) => setgradYear(e.target.value)} /> */}
-       <TextField
-          id="outlined-multiline-static"
-          label="Address"
-          multiline
-          name='address'
-          value={input.address}
-          onChange={handleChange}
-          rows={4}
-          // defaultValue="Address"
-        />
+ 
+      <Box
+        component="form"
+        sx={{
+          '& .MuiTextField-root': { m: 1, width: '45ch' },
+        }}
+        noValidate
+        autoComplete="off"
+      >
+        <div>
 
           <TextField
+            id="outlined-multiline-flexible"
+            label="Enter FirstName"
+            multiline
+            maxRows={4}
+            name='firstName'
+            value={values.firstName}
+            onChange={handleChange("firstName")}
+            onBlur={() => setFieldTouched("firstName")}
+          />
+          {touched.firstName && errors.firstName && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.firstName}
+            </h5>
+          )}
+          <TextField
+            id="outlined-multiline-flexible"
+            label="Enter LastName"
+            multiline
+            name='lastName'
+            value={values.lastName}
+            onChange={handleChange("lastName")}
+            onBlur={() => setFieldTouched("lastName")}
+            maxRows={4}
+          />
+          {touched.lastName && errors.lastName && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.lastName}
+            </h5>
+          )}
+          <TextField
+            id="outlined-multiline-flexible"
+            label="Enter MobileNo"
+            name='mobileNo'
+            multiline
+            value={values.mobileNo}
+            onChange={handleChange("mobileNo")}
+            onBlur={() => setFieldTouched("mobileNo")}
+            maxRows={4}
+          />
+          {touched.mobileNo && errors.mobileNo && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.mobileNo}
+            </h5>
+          )}
+          {/* <TextField
           id="outlined-multiline-flexible"
-          label="Enter city"
+          label="Enter Branch"
+          name='branch'
+          value={values.branch}
+          onChange={handleChange("branch")}
+          onBlur={() => setFieldTouched("branch")}
           multiline
-          name='city'
-          value={input.city}
-          onChange={handleChange}
           maxRows={4}
-        />
-      <TextField
-          id="outlined-multiline-flexible"
-          label="Enter District"
-          multiline
-          name='district'
-          value={input.district}
-          onChange={handleChange}
-          maxRows={4}/>
-      <TextField
-          id="outlined-multiline-flexible"
-          label="Enter Pincode"
-          multiline
-          name='pincode'
-          value={input.pincode}
-          onChange={handleChange}
-          maxRows={4}
-        />
-      <TextField
-          id="outlined-multiline-flexible"
-          label="Enter State"
-          multiline
-          name='state'
-          value={input.state}
-          onChange={handleChange}
-          maxRows={4}
-        />
-      <TextField
-          id="outlined-multiline-flexible"
-          label="Enter Total Fees"
-          multiline
-          name='ttFees'
-          value={input.ttFees}
-          onChange={handleChange}
-          maxRows={4}
-        />
-      <TextField
-          id="outlined-multiline-flexible"
-          label="Enter Fees Paid Amt"
-          multiline
-          name='feesPaid'
-          value={input.feesPaid}
-          onChange={handleChange}
-          maxRows={4}
-        />
-      <TextField
-          id="outlined-multiline-flexible"
-          label="Enter Current Year"
-          multiline
-          name='crntYear'
-          value={input.crntYear}
-          onChange={handleChange}
-          maxRows={4}
-        />
-      <TextField
-          id="outlined-multiline-flexible"
-          label="Enter Current Sem"
-          multiline
-          name='crntSem'
-          value={input.crntSem}
-          onChange={handleChange}
-          maxRows={4}
-        />
-      </div>
-      <div style={{display:"flex" ,justifyContent:"center",marginTop:"1rem"}}>
-      <Button variant="contained"onClick={() =>handleSubmit()}>Submit</Button>
+        /> */}
+          <FormControl sx={{ m: 1, minWidth: 200 }}>
+            <InputLabel id="demo-simple-select-autowidth-label">Branch</InputLabel>
+            <Select
+              labelId="demo-simple-select-autowidth-label"
+              id="demo-simple-select-autowidth"
+              name="branch"
+              onChange={handleChange("branch")}
+              onBlur={() => setFieldTouched("branch")}
+              autoWidth
+              label="Branch"
+            >
+              <MenuItem value={"Computer"}>Computer</MenuItem>
+              <MenuItem value={"Mechanical"}>Mechanical</MenuItem>
+              <MenuItem value={"Electrical"}>Electrical</MenuItem>
+              <MenuItem value={"Electronics"}>Electronics</MenuItem>
+              <MenuItem value={"Civil"}>Electronics</MenuItem>
+            </Select>
 
-      </div>
-    </Box>
+
+          </FormControl>
+
+
+          {touched.branch && errors.branch && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.branch}
+            </h5>
+          )}
+          <TextField
+            id="outlined-multiline-flexible"
+            label="Enter Admission Year"
+            name='adYear'
+            value={values.adYear}
+            onChange={handleChange("adYear")}
+            onBlur={() => setFieldTouched("adYear")}
+            multiline
+            maxRows={4}
+          />
+          {touched.adYear && errors.adYear && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.adYear}
+            </h5>
+          )}
+          <TextField
+            id="outlined-multiline-flexible"
+            label="Enter Graduation Year"
+            name='gradYear'
+            value={values.gradYear}
+            onChange={handleChange("gradYear")}
+            onBlur={() => setFieldTouched("gradYear")}
+            multiline
+            maxRows={4}
+          />
+          {touched.gradYear && errors.gradYear && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.gradYear}
+            </h5>
+          )}
+          {/* <DatePicker label="Admission Year" value={adYear}  onChange={(e) => setAdYear(e.target.value)}  />
+     <DatePicker label="Graduation Year" value={gradYear}   onChange={(e) => setgradYear(e.target.value)} /> */}
+          <TextField
+            id="outlined-multiline-static"
+            label="Address"
+            multiline
+            name='address'
+            value={values.address}
+            onChange={handleChange("address")}
+            onBlur={() => setFieldTouched("address")}
+            rows={4}
+          // defaultValue="Address"
+          />
+          {touched.address && errors.address && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.address}
+            </h5>
+          )}
+          <TextField
+            id="outlined-multiline-flexible"
+            label="Enter city"
+            multiline
+            name='city'
+            value={values.city}
+            onChange={handleChange("city")}
+            onBlur={() => setFieldTouched("city")}
+            maxRows={4}
+          />
+          {touched.city && errors.city && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.city}
+            </h5>
+          )}
+          <TextField
+            id="outlined-multiline-flexible"
+            label="Enter District"
+            multiline
+            name='district'
+            value={values.district}
+            onChange={handleChange("district")}
+            onBlur={() => setFieldTouched("district")}
+            maxRows={4} />
+          {touched.district && errors.district && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.district}
+            </h5>
+          )}
+          <TextField
+            id="outlined-multiline-flexible"
+            label="Enter Pincode"
+            multiline
+            name='pincode'
+            value={values.pincode}
+            onChange={handleChange("pincode")}
+            onBlur={() => setFieldTouched("pincode")}
+            maxRows={4}
+          />
+          {touched.pincode && errors.pincode && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.pincode}
+            </h5>
+          )}
+          <TextField
+            id="outlined-multiline-flexible"
+            label="Enter State"
+            multiline
+            name='state'
+            value={values.state}
+            onChange={handleChange("state")}
+            onBlur={() => setFieldTouched("state")}
+            maxRows={4}
+          />
+          {touched.state && errors.state && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.state}
+            </h5>
+          )}
+          <TextField
+            id="outlined-multiline-flexible"
+            label="Enter Total Fees"
+            multiline
+            name='ttFees'
+            value={values.ttFees}
+            onChange={handleChange("ttFees")}
+            onBlur={() => setFieldTouched("ttFees")}
+            maxRows={4}
+          />
+          {touched.ttFees && errors.ttFees && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.ttFees}
+            </h5>
+          )}
+          <TextField
+            id="outlined-multiline-flexible"
+            label="Enter Fees Paid Amt"
+            multiline
+            name='feesPaid'
+            value={values.feesPaid}
+            onChange={handleChange("feesPaid")}
+            onBlur={() => setFieldTouched("feesPaid")}
+            maxRows={4}
+          />
+          {touched.feesPaid && errors.feesPaid && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.feesPaid}
+            </h5>
+          )}
+          {/* <TextField
+            id="outlined-multiline-flexible"
+            label="Enter Class"
+            multiline
+            name='stu_class'
+            value={values.stu_class}
+            onChange={handleChange("stu_class")}
+            onBlur={() => setFieldTouched("stu_class")}
+            maxRows={4}
+          /> */}
+          <FormControl sx={{ m: 1, minWidth: 200 }}>
+            <InputLabel id="demo-simple-select-autowidth-label">Class</InputLabel>
+            <Select
+              labelId="demo-simple-select-autowidth-label"
+              id="demo-simple-select-autowidth"
+              name='stu_class'
+            onBlur={() => setFieldTouched("stu_class")}
+              onChange={handleChange("stu_class")}
+              autoWidth
+              label="Class"
+            >
+              <MenuItem value={"FE"}>FE</MenuItem>
+              <MenuItem value={"SE"}>SE</MenuItem>
+              <MenuItem value={"TE"}>TE</MenuItem>
+              <MenuItem value={"BE"}>BE</MenuItem>
+            </Select>
+
+
+          </FormControl>
+          {touched.stu_class && errors.stu_class && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.stu_class}
+            </h5>
+          )}
+          {/* <TextField
+            id="outlined-multiline-flexible"
+            label="Enter Current Sem"
+            multiline
+            name='crntSem'
+            value={values.crntSem}
+            onChange={handleChange("crntSem")}
+            onBlur={() => setFieldTouched("crntSem")}
+            maxRows={4}
+          /> */}
+           <FormControl sx={{ m: 1, minWidth: 200 }}>
+            <InputLabel id="demo-simple-select-autowidth-label">Current Sem</InputLabel>
+            <Select
+              labelId="demo-simple-select-autowidth-label"
+              id="demo-simple-select-autowidth"
+              name='crntSem'
+              onBlur={() => setFieldTouched("crntSem")}
+            onChange={handleChange("crntSem")}
+              autoWidth
+              label="sem"
+            >
+              <MenuItem value={"1"}>1</MenuItem>
+              <MenuItem value={"2"}>2</MenuItem>
+              <MenuItem value={"3"}>3</MenuItem>
+              <MenuItem value={"4"}>4</MenuItem>
+              <MenuItem value={"5"}>5</MenuItem>
+              <MenuItem value={"6"}>6</MenuItem>
+              <MenuItem value={"7"}>7</MenuItem>
+              <MenuItem value={"8"}>8</MenuItem>
+            </Select>
+
+
+          </FormControl>
+
+          {touched.crntSem && errors.crntSem && (
+            <h5
+              style={{
+                color: "red",
+                fontWeight: "500",
+                marginBottom: 5,
+              }}
+            >
+              {"***" + errors.crntSem}
+            </h5>
+          )}
+        </div>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
+          <Button variant="contained" onClick={() => handleSubmitt()}>Submit</Button>
+
+        </div>
+      </Box>
     </>
-   )
+  )
 }
 
 const Admission = () => {
-//   const [step, setStep] = React.useState(0);
-//   const [completed, setCompleted] = React.useState({});
+  //   const [step, setStep] = React.useState(0);
+  //   const [completed, setCompleted] = React.useState({});
 
-//   const steps = [
-//     'Admission',
-//     'Final Step',
-//   ];
+  //   const steps = [
+  //     'Admission',
+  //     'Final Step',
+  //   ];
 
- 
 
-  
-// const handleStep = () => {
-//   console.log("object")
-//   setStep(step + 1);
 
-// }
 
-const handleSubmit = () => {
+  // const handleStep = () => {
+  //   console.log("object")
+  //   setStep(step + 1);
 
-}
+  // }
 
-    return (
-      <>
-      <Form1/>
-    
-      </>
-//     <div >
-//       <Box sx={{ width: '100%' }}>
-//       <Stepper activeStep={step} alternativeLabel>
-//         {steps.map((label) => (
-//           <Step key={label}>
-//             <StepLabel>{label}</StepLabel>
-//           </Step>
-//         ))}
-//       </Stepper>
-//     </Box>
+  const handleSubmit = () => {
 
-//     {
-//        step==0
-//        ?
-//        <Form1/>
-//        :
-//        <Form2/>
- 
-//  }
-       
-//     <div style={{marginTop:"50px",display:"flex",justifyContent:"flex-end",padding:"0 9%"}}>
-//     <Button variant="contained" onClick={() => handleStep()}>{step==0 ? "Next" : "submit"}</Button> 
-//     </div>
-//     </div>
+  }
+
+  return (
+    <>
+      <Form1 />
+
+    </>
+    //     <div >
+    //       <Box sx={{ width: '100%' }}>
+    //       <Stepper activeStep={step} alternativeLabel>
+    //         {steps.map((label) => (
+    //           <Step key={label}>
+    //             <StepLabel>{label}</StepLabel>
+    //           </Step>
+    //         ))}
+    //       </Stepper>
+    //     </Box>
+
+    //     {
+    //        step==0
+    //        ?
+    //        <Form1/>
+    //        :
+    //        <Form2/>
+
+    //  }
+
+    //     <div style={{marginTop:"50px",display:"flex",justifyContent:"flex-end",padding:"0 9%"}}>
+    //     <Button variant="contained" onClick={() => handleStep()}>{step==0 ? "Next" : "submit"}</Button> 
+    //     </div>
+    //     </div>
   )
 }
 export default Admission

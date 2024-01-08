@@ -15,6 +15,14 @@ const assignmentSchema = new mongoose.Schema({
     file:{
         type:String,
     },
+    classes:{
+        type:String,
+        required:true
+    },
+    branch:{
+        type:String,
+        required:true
+    },
     response:[
        {
          type:mongoose.Schema.Types.ObjectId,
