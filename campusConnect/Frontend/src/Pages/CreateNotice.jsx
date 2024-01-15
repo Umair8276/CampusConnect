@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react'
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
+import Typography from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
@@ -14,6 +15,10 @@ import AlertTitle from '@mui/material/AlertTitle';
 import axios from 'axios';
 import { AppContext } from '../Context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Oval } from 'react-loader-spinner'
+import DownloadDoneIcon from '@mui/icons-material/DownloadDone';
+import { ToastContainer, toast } from 'react-toastify';
+
 
 
 const VisuallyHiddenInput = styled("input")({
@@ -35,10 +40,13 @@ const CreateNotice = () => {
     const [classes, setClasses] = useState("");
     const [alert, setAlert] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [sem,setSem] = useState("")
     const {user} = useContext(AppContext);
+    const [loading,setLoading] = useState()
     const navigate = useNavigate()
 
     const handleUpload = async (url) => {
+        setLoading(true)
         const data = new FormData();
         data.append("file", url);
         data.append("upload_preset", "pehzflst");
@@ -51,6 +59,7 @@ const CreateNotice = () => {
             .then((data) => {
                 console.log(data.url);
                 setFile(data.url)
+                setLoading(false)
             });
         setAlert(true)
         setTimeout(() => {
@@ -63,11 +72,18 @@ const CreateNotice = () => {
         axios.post("http://localhost:5000/api/notice/createnotice",{
             file,
             content,
-            classes,
+            class:classes,
             branch,
-            faculty:user._id
+            faculty:user._id,
+            sem
         }).then(res => {
             console.log(res.data)
+            toast.success("Notice Uploaded Successfully", {
+                autoClose: 2000, 
+              })
+              setContent("")
+              setBranch("")
+              setClasses("")
         }).catch(err => {
             console.log(err)
         })
@@ -75,7 +91,7 @@ const CreateNotice = () => {
         setTimeout(() => {
             setSuccess(false)
         }, 2000)
-        navigate("/faculty/notice")
+        // navigate("/faculty/notice")
     }
 
     return (
@@ -98,12 +114,15 @@ const CreateNotice = () => {
 
             <h1>Create Notice</h1>
             <Divider />
+            <Box style={{display: "flex", justifyContent: "center",alignItems:"center",width:"100%",height:"100%", }}>
+
+            
             <Box
                 component="form"
                 sx={{
-                    '& .MuiTextField-root': { m: 2, width: '45ch' },
+                    '& .MuiTextField-root': { m: 2,width:"70ch" },
                 }}
-                style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start" }}
+                style={{ width:"600px",boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",borderRadius:"10px"}}
                 noValidate
                 autoComplete="off"
             >
@@ -114,7 +133,7 @@ const CreateNotice = () => {
                     multiline
                     rows={5}
                     onChange={(e) => setContent(e.target.value)}
-                    defaultValue=""
+                   
                 />
 
 
@@ -156,9 +175,79 @@ const CreateNotice = () => {
 
                 </FormControl>
 
-            </Box>
 
-            <Box style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
+                <FormControl sx={{ m: 1, minWidth: 200 }}>
+                    <InputLabel id="demo-simple-select-autowidth-label">Semester</InputLabel>
+                    {
+                        classes=="FE"
+                        ?
+                        <Select
+                        labelId="demo-simple-select-autowidth-label"
+                        id="demo-simple-select-autowidth"
+                        value={sem}
+                        onChange={(e) => setSem(e.target.value)}
+                        autoWidth
+                        label="Sem"
+                    >
+                        <MenuItem value={"1"}>1</MenuItem>
+                        <MenuItem value={"2"}>2</MenuItem>
+                    </Select>
+                    :
+                    classes == "SE"
+                    ?
+                    <Select
+                    labelId="demo-simple-select-autowidth-label"
+                    id="demo-simple-select-autowidth"
+                    value={sem}
+                    onChange={(e) => setSem(e.target.value)}
+                    autoWidth
+                    label="Sem"
+                >
+                    <MenuItem value={"3"}>3</MenuItem>
+                    <MenuItem value={"4"}>4</MenuItem>
+                </Select>
+                :
+                classes=="TE"
+                ?
+                <Select
+                labelId="demo-simple-select-autowidth-label"
+                id="demo-simple-select-autowidth"
+                value={sem}
+                onChange={(e) => setSem(e.target.value)}
+                autoWidth
+                label="Sem"
+            >
+                <MenuItem value={"5"}>5</MenuItem>
+                <MenuItem value={"6"}>6</MenuItem>
+            </Select>
+            : <Select
+            labelId="demo-simple-select-autowidth-label"
+            id="demo-simple-select-autowidth"
+            value={sem}
+            onChange={(e) => setSem(e.target.value)}
+            autoWidth
+            label="Sem"
+        >
+            <MenuItem value={"7"}>7</MenuItem>
+            <MenuItem value={"8"}>8</MenuItem>
+        </Select>
+
+                    }
+                </FormControl>
+                
+ 
+             
+
+             
+
+              
+
+
+                
+
+
+
+            <Box style={{ width: "100%", display: "flex", flexDirection: "column" ,marginLeft:"10px"}}>
                 <Button
                     component="label"
                     variant="outlined"
@@ -167,16 +256,32 @@ const CreateNotice = () => {
                     sx={{
                         mt: "2rem",
                     }}
-                    style={{ width: "350px" }}
+                    style={{ width: "570px" }}
                 >
-                    Upload file
+                    Upload file  {loading ?       <Oval
+                  visible={true}
+                  height="30"
+                  width="30"
+                  color="#4fa94d"
+                 ariaLabel="oval-loading"
+                
+                 />
+                 :
+                 loading==false
+                 ?
+                 <DownloadDoneIcon color="green"/>
+                 :
+                 <></>}
                     <VisuallyHiddenInput type="file" onChange={(e) => handleUpload(e.target.files[0])} />
                 </Button>
 
-                <Button variant="contained" sx={{ mt: "2rem", width: "20rem" }} onClick={postData}>
-                    Publish
+                <Button variant="contained" sx={{ mt: "2rem", width: "20rem",marginLeft:"130px" }} onClick={postData}>
+                    Publish 
                 </Button>
+                    </Box>
             </Box>
+            </Box>
+           
 
         </>
     )

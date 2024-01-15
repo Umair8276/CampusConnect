@@ -38,7 +38,7 @@ export const adminMenu = [
 
   export const clerkMenu = [
     
-    {
+    { 
       title: "Admission",
       icon: <BackHandOutlinedIcon />,
       path: "/clerk/admission",
@@ -47,11 +47,6 @@ export const adminMenu = [
       title: "Students",
       icon: <NoteAltOutlinedIcon />,
       path: "/clerk/students",
-    },
-    {
-      title: "Batches",
-      icon: <LayersIcon />,
-      path: "/clerk/batches",
     },
     {
       title: "Notice",

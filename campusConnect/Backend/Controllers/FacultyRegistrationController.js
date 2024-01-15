@@ -49,7 +49,7 @@ const facultyLogin = async(req,res) => {
       return res.send({msg:"Password is incorrect"});
   }
   else{
-    return res.send({msg:"Please Signup"});
+    return res.send({err:"Please Signup"});
   }
 }
 exports.Facultyregistration = Facultyregistration

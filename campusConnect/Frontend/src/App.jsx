@@ -1,6 +1,8 @@
 import "./App.css";
 import React, { useContext } from "react";
 import { BrowserRouter, Route, Routes, Router } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Login,
   StLogin,
@@ -29,6 +31,7 @@ function App() {
   const {user} = useContext(AppContext)
   return (
     <>
+    <ToastContainer/>
     <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Routes>
           <Route path="/" element={user && user.role ?  <UserAuth /> :  <Login />} />
@@ -60,6 +63,7 @@ function App() {
             <Routes>
               <Route path="/admission" element={<Admission/>}/>
               <Route path="/students" element={<DisplayData/>}/>
+              <Route path="/notice" element={<Notice/>}/>
             </Routes>
             </Layout>
           }

@@ -34,13 +34,16 @@ import { AppContext } from "../../Context/AuthContext";
 import CircularProgress from '@mui/material/CircularProgress';
 import axios from "axios"
 import DoneIcon from '@mui/icons-material/Done';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Oval } from 'react-loader-spinner'
 
 
 function createData(rollNumber, name) {
   return { rollNumber, name };
 }
 
-const rows = [
+const student = [
   createData("20CO01", "Test"),
   createData("20CO02", "Test"),
   createData("20CO03", "Test"),
@@ -56,7 +59,7 @@ const rows = [
 
 const AssignmentCard = ({
   title,
-  course,
+  branch,
   subject,
   batch,
   date,
@@ -64,6 +67,7 @@ const AssignmentCard = ({
   percentage,
   type,
   files,
+  sem,
   id,
   response,
   lastDate,
@@ -74,10 +78,17 @@ const AssignmentCard = ({
   const [openHistory, setOpenHistory] = React.useState(false);
   const [isActive, setIsActive] = React.useState(true);
   const [publish, setPublish] = React.useState(false);
-  const [isLoading,setIsLoading] = useState(false);
+  const [isLoading,setIsLoading] = useState();
+  const [student,setStudent] = useState([])
   const [success,setSuccess] = useState(false)
   const [file,setFile] = useState("");
-  const [userFile,setUserFile] = useState("")
+  const [updatedFile,setUpdatedFile] = useState("")
+  const [count,setCount] = useState("")
+  const [comment,setComment] = useState("")
+  const [userFile,setUserFile] = useState("");
+  const [reUpload,setReUpload] = useState(true)
+  const [userAssignment,setUserAssignment] = useState("")
+  const [commentData,setCommentData] = useState([])
   const { user } = useContext(AppContext )
 
   const VisuallyHiddenInput = styled("input")({
@@ -106,32 +117,49 @@ const AssignmentCard = ({
 
   }
 
+  // Upload Assignment From Student Side
   const handleUpload = async (url) => {
-    setIsLoading(true)
-    const data = new FormData();
-    data.append("file", url);
-    data.append("upload_preset", "pehzflst");
-    data.append("cloud_name", "zaidsiddiqui");
-    fetch("https://api.cloudinary.com/v1_1/zaidsiddiqui/upload", {
-      method: "post",
-      body: data,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data.url);
-        setFile(data.url)
-      });
-      
-      uploadAssigment();
-      setSuccess(true)
-      setTimeout( () => {
-        setSuccess(false)
-      },2000)
-      setIsLoading(false)
+    // console.log("User Id",id)
+      setIsLoading(true)
+      const data = new FormData();
+      data.append("file", url);
+      data.append("upload_preset", "pehzflst");
+      data.append("cloud_name", "zaidsiddiqui");
+      fetch("https://api.cloudinary.com/v1_1/zaidsiddiqui/upload", {
+        method: "post",
+        body: data,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data.url);
+            setFile(data.url)
+            setIsLoading(false)
+        });
       
   };
+  const handleReUpload = async (url) => {
+      setReUpload(true)
+      setIsLoading(true)
+      const data = new FormData();
+      data.append("file", url);
+      data.append("upload_preset", "pehzflst");
+      data.append("cloud_name", "zaidsiddiqui");
+      fetch("https://api.cloudinary.com/v1_1/zaidsiddiqui/upload", {
+        method: "post",
+        body: data,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data.url);
+          setUpdatedFile(data.url)
+            setIsLoading(false)
+        });
+      
+  };
+
   
 
+   // Upload Assignment From Student Side
   const uploadAssigment = () => {
     axios.post("http://localhost:5000/api/ass/checkass",{
       studentId:user._id,
@@ -139,10 +167,51 @@ const AssignmentCard = ({
       file
     }).then(res => {
       console.log(res.data)
+      // setUserAssignment(res.data.newUpload.file)
+        toast.success("Assignment Uploaded Successfully", {
+          autoClose: 2500, 
+        })
+        setTimeout( () => {
+          setOpenOngoing(false)
+        },2500)
+        setFile("")
+        
     }).catch(err => {
       console.log(err)
     })
   }
+
+  const reUploadAssigment = () => {
+    console.log("reUploadAssigment triggered")
+    axios.put(`http://localhost:5000/api/ass/updatefile/${userAssignment._id}`,{
+     file: updatedFile
+    }).then(res => {
+      console.log(res.data)
+      // setUserAssignment(res.data.UpdateFile.file)
+      toast.success("Assignment Updated Successfully", {
+        autoClose: 2000, 
+      })
+      setTimeout( () => {
+        setOpenOngoing(false)
+      },2500)
+      setReUpload(false)
+    }).catch(err => {
+      console.log(err)
+    })
+  }
+
+
+  useEffect( () => {
+    if(file!="")
+      uploadAssigment()
+    
+  },[file])
+  
+  useEffect( () => {
+    if(updatedFile && reUpload )
+    reUploadAssigment()
+  },[updatedFile])
+  
 
 
 
@@ -154,22 +223,67 @@ const AssignmentCard = ({
     })
   }
 
+  // Find student Assignment Upload Count and student data
+  const getCount = () => {
+    axios.get(`http://localhost:5000/api/ass/findresponse/${id}`)
+    .then(res => {
+      console.log("Assignment Count : " , res.data)
+       setCount(res.data.count)
+       setStudent(res.data.resp)
+    }).catch(err => {
+      console.log(err)
+    })
+  }
+
+  // Send Comment to the Student By Faculty
+  const SendComment = (id) => {
+     axios.put("http://localhost:5000/api/ass/updatecomment",{
+      id,
+      comment
+     }).then(res => {
+      console.log(res.data)
+      setCommentData(res.data.comments)
+      toast.success("Comment Added Successfully",{
+        autoClose: 2500,
+      })
+     }).catch(err => {
+      console.log(err)
+     })
+  }
+
+// Get Assignment based on assignmentId and StudentId
+  const getUserAssignment = (id) => {
+    console.log("AssignmentId",id)
+    axios.get(`http://localhost:5000/api/ass/getuserass/${user._id}/${id}`,{
+      studentId:user._id,
+      assignmentId:id
+    })
+    .then(res => {
+      console.log('User Assignment for Student' , res.data)
+      setUserAssignment(res.data.data)
+    }).catch(err => {
+      console.log(err)
+    })
+  }
 
 
   useEffect( () => {
+    getCount()
     getUploadedAss()
+    getUserAssignment()
   },[]);
 
 
   return (
     <>
+    
       <Paper
         elevation={0.5}
         sx={{
           width: "340px",
           padding: "15px",
           borderRadius: "12px",
-          height: "330px",
+          height: "300px",
           display: "flex",
           flexDirection: "column",
           border: "1px solid #E6E6E6",
@@ -202,7 +316,7 @@ const AssignmentCard = ({
         <Typography
           sx={{
             color: "#9A9A9A",
-          }}
+          }}Fre
         >
           Subject : {subject}
         </Typography>
@@ -211,7 +325,6 @@ const AssignmentCard = ({
             color: "#9A9A9A",
           }}
         >
-          Batch : {batch}
         </Typography>
         <Stack
           sx={{
@@ -263,7 +376,7 @@ const AssignmentCard = ({
               padding: "10px",
               fontWeight: "light",
             }}
-            onClick={() => setOpenOngoing(true)}
+            onClick={() =>{ getUserAssignment(id),setOpenOngoing(true)}}
           >
             View Details
           </Button>
@@ -321,17 +434,18 @@ const AssignmentCard = ({
             <Typography fontWeight={500} fontSize={20} color="green">
                 Assignment Uploaded Successfully
             </Typography>}
+             <ToastContainer />
             <Typography fontWeight={500} fontSize={32}>
               {title}
             </Typography>
             <Typography fontSize={20} fontWeight={450} marginTop={5}>
-              Course: {course}
+              Branch: {branch}
             </Typography>
             <Typography fontSize={20} fontWeight={450}>
               Subject : {subject}
             </Typography>
             <Typography fontSize={20} fontWeight={450}>
-              Batch : {batch}
+              Semester : {sem}
             </Typography>
    
             <Typography
@@ -406,7 +520,7 @@ const AssignmentCard = ({
                   <></>
                   :
                   <>
-                    <Button color="success">Completed : 55</Button>
+                    <Button color="success">Completed : {count}</Button>
                     <Button color="warning">Pending : 15</Button>
                   </>
 
@@ -427,10 +541,16 @@ const AssignmentCard = ({
               }}
             >
              
-                <Button color="info" variant='outlined'>
-                 <a href={files} target="_blank" style={{color:"blue"}}>Assignment..file</a>
+                <Button color="info" variant='outlined'  sx={{
+                    // mt: "2rem",
+                    width:"300px"
+                  }}>
+                 <a href={files} target="_blank" style={{color:"blue"}}>Assignment</a>
                  </Button>
                  
+                 {
+                  userAssignment?.file
+                  ?
               <Button
                   component="label"
                   variant="outlined"
@@ -438,25 +558,86 @@ const AssignmentCard = ({
                   fullWidth
                   sx={{
                     // mt: "2rem",
-                    width:"300px"
+                    width:"350px"
                   }}
                 >
-                 {response.includes(user._id) ? "Re-Upload file" : "Upload file"}
-                  <VisuallyHiddenInput type="file" onChange={(e) => handleUpload(e.target.files[0])}/>
+                Re-Upload
+                
+                  <VisuallyHiddenInput type="file" onChange={(e) =>{ handleReUpload(e.target.files[0])}}/>
                 </Button>
+                :
+                <Button
+                component="label"
+                variant="outlined"
+                startIcon={<CloudUploadIcon />}
+                fullWidth
+                sx={{
+                  // mt: "2rem",
+                  width:"350px"
+                }}
+              >
+               {/* {response.includes(user._id) ? "Re-Upload file" : "Upload file"} */}
+               Upload file
+              
+                <VisuallyHiddenInput type="file" onChange={(e) =>{ handleUpload(e.target.files[0])}}/>
+              </Button>
+
+
+                 }
                 {
+                  userAssignment?.file
+                  ?
+                <Button
+                   component="label"
+                   variant="outlined"
+                  //  startIcon={<CloudUploadIcon />}
+                   fullWidth
+                   sx={{
+                     // mt: "2rem",
+                     width:"350px"
+                   }}
+                >
+                  <a href={userAssignment.file} target="_blank" style={{color:"blue",textAlign:"center"}}> Your Response</a>
+                </Button>
+                :
+                <></>
+                
+                }
+                {
+                  userAssignment?.comment
+                  ?
+                  <p style={{color:"red"}}>***{userAssignment.comment}</p>
+                  :
+                  <></>
+                }
+                {
+                  isLoading
+                  ?
+                  <Oval
+                    visible={true}
+                    height="40"
+                    width="40"
+                    color="#4fa94d"
+                   ariaLabel="oval-loading"
+                   wrapperStyle={{}}
+                   wrapperClass=""
+                   />
+                   :
+                   <></>
+                }
+                {/* {
                   isLoading 
                   &&
                   <CircularProgress color="secondary" size={25}/>
-                }
+                } */}
 
-                {response.includes(user._id)
+                {/* {response.includes(user._id)
                 ?
                   <Button color="info" variant='outlined' sx={{width:"200px"}}>
                  <a href={userFile} target="_blank" style={{color:"blue",textAlign:"center"}}> Your Response</a>
                  </Button>
                  :
-                 <></>}
+                 <></>} */}
             </Stack>
           </Box>
         </Drawer>
@@ -524,7 +705,7 @@ const AssignmentCard = ({
             {isActive ? (
               <>
                 <Typography fontSize={20} fontWeight={450} marginTop={5}>
-                  Course: {course}
+                  {/* Course: {course} */}
                 </Typography>
                 <Typography fontSize={20} fontWeight={450}>
                   Subject : {subject}
@@ -540,17 +721,17 @@ const AssignmentCard = ({
                     alignItems: "center",
                   }}
                 >
-                  <Typography fontSize={24} fontWeight={500}>
+                  {/* <Typography fontSize={24} fontWeight={500}>
                     Total Marks : 50
-                  </Typography>
+                  </Typography> */}
 
-                  <Button
+                  {/* <Button
                     sx={{
                       marginLeft: "auto",
                     }}
                   >
                     Passing Percentage : {percentage}%
-                  </Button>
+                  </Button> */}
                 </Stack>
                 <Typography
                   marginTop={6}
@@ -640,7 +821,7 @@ const AssignmentCard = ({
                     marginTop: "1rem",
                   }}
                 >
-                  <Button color="success">Completed : 78</Button>
+                  <Button color="success">Completed : {count}</Button>
                   <Button color="warning">Pending : 14</Button>
                 </Stack>
                 <Typography marginTop={5} fontWeight={450} fontSize={20}>
@@ -654,99 +835,24 @@ const AssignmentCard = ({
                     marginTop: "1rem",
                   }}
                 >
-                  <Button color="info" variant='outlined'>Assignment..pdf</Button>
+                     {/* <Button color="info" variant='outlined'>
+                 <a href={files} target="_blank" style={{color:"blue"}}>Assignment..file</a>
+                 </Button> */}
+                  {/* <Button color="info" variant='outlined'>
+                     <a href={files} target="_blank" style={{color:"blue"}}>Assignment...PDF</a>
+                  </Button> */}
                 </Stack>
               </>
             ) : (
               <>
-                <TableContainer
-                  component={Paper}
-                  sx={{
-                    overflowY: "scroll",
-                    height: 700,
-                  }}
-                >
-                  <Table stickyHeader>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Roll Number</TableCell>
-                        <TableCell>Student Name</TableCell>
-                        <TableCell>Attachements</TableCell>
-                        <TableCell>Marks</TableCell>
-                        <TableCell>Action</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {rows.map((row) => (
-                        <TableRow key={row.rollNumber}>
-                          <TableCell component="th" scope="row">
-                            {row.rollNumber}
-                          </TableCell>
-
-                          <TableCell component="th" scope="row">
-                            {row.name}
-                          </TableCell>
-                          <TableCell component="th" scope="row">
-                            <Button
-                              variant="outlined"
-                              sx={{
-                                borderColor: "#EDEDF5",
-                                "&hover": {
-                                  borderColor: "#EDEDF5",
-                                },
-                              }}
-                            >
-                              Assignment....pdf
-                            </Button>
-                          </TableCell>
-                          <TableCell component="th" scope="row">
-                            <TextField variant="outlined" type='number' helperText="Out of 50"
-                            ></TextField>
-                          </TableCell>
-                          <TableCell component="th" scope="row">
-                            <Button>Save</Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-                <Button
-                  variant="contained"
-                  sx={{
-                    padding: "10px",
-                    marginTop: "2rem",
-                  }}
-                  onClick={handlePublishOpen}
-                >
-                  Publish Result
-                </Button>
-                <Dialog
-                  open={publish}
-                  onClose={handlePublishClose}
-                >
-                  <DialogTitle id="alert-dialog-title">Publish Result  </DialogTitle>
-                  <DialogContent>
-                    <DialogContentText>
-                      Are you sure you want to publish the Result of <Typography fontWeight={1000}>"{title}"</Typography>
-                    </DialogContentText>
-                  </DialogContent>
-                  <DialogActions >
-                    <Button variant='outlined' sx={{
-                      fontWeight: 'light',
-                    }} onClick={handlePublishClose}>No</Button>
-                    <Button variant='contained' sx={{
-                      fontWeight: 'light',
-                    }} onClick={OnPublish} autoFocus>Publish</Button>
-                  </DialogActions>
-
-                </Dialog>
+               
               </>
             )}
           </Box>
         </Drawer>
 
         {/* Drawer for History Tab */}
+        <ToastContainer/>
         <Drawer
           anchor="right"
           open={openHistory}
@@ -809,34 +915,14 @@ const AssignmentCard = ({
             {isActive ? (
               <>
                 <Typography fontSize={20} fontWeight={450} marginTop={5}>
-                  Course: {course}
+                  {/* Course: {course} */}
                 </Typography>
                 <Typography fontSize={20} fontWeight={450}>
                   Subject : {subject}
                 </Typography>
                 <Typography fontSize={20} fontWeight={450}>
-                  Batch : {batch}
+                  Semester : {sem}
                 </Typography>
-                <Stack
-                  marginTop={8}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography fontSize={24} fontWeight={500}>
-                    Total Marks : 50
-                  </Typography>
-
-                  <Button
-                    sx={{
-                      marginLeft: "auto",
-                    }}
-                  >
-                    Passing Percentage : {percentage}%
-                  </Button>
-                </Stack>
                 <Typography
                   marginTop={6}
                   fontWeight={400}
@@ -861,7 +947,7 @@ const AssignmentCard = ({
                       borderRadius: "6px",
                     }}
                   >
-                    {date}
+                    {scheduleDate}
                   </Button>
                   <Button
                     sx={{
@@ -900,7 +986,7 @@ const AssignmentCard = ({
                       borderRadius: "6px",
                     }}
                   >
-                    {date}
+                    {lastDate}
                   </Button>
                   <Button
                     sx={{
@@ -925,8 +1011,8 @@ const AssignmentCard = ({
                     marginTop: "1rem",
                   }}
                 >
-                  <Button color="success">Completed : 55</Button>
-                  <Button color="warning">Pending : 15</Button>
+                  <Button color="success">Completed : {count}</Button>
+                  {/* <Button color="warning">Pending : 15</Button> */}
                 </Stack>
                 <Typography marginTop={5} fontWeight={450} fontSize={20}>
                   Resourses
@@ -939,7 +1025,9 @@ const AssignmentCard = ({
                     marginTop: "1rem",
                   }}
                 >
-                  <Button color="info" variant='outlined'>Assignment..pdf</Button>
+                  <Button color="info" variant='outlined'>
+                  <a href={files} target="_blank" style={{color:"blue"}}>Assignment..file</a>
+                  </Button>
                 </Stack>
               </>
             ) : (
@@ -957,19 +1045,19 @@ const AssignmentCard = ({
                         <TableCell>Roll Number</TableCell>
                         <TableCell>Student Name</TableCell>
                         <TableCell>Attachements</TableCell>
-                        <TableCell>Marks</TableCell>
+                        <TableCell>Comment</TableCell>
                         <TableCell>Action</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {rows.map((row) => (
-                        <TableRow key={row.rollNumber}>
+                      {student.map((stu) => (
+                        <TableRow >
                           <TableCell component="th" scope="row">
-                            {row.rollNumber}
+                            {stu.studentId.rollNo}
                           </TableCell>
 
                           <TableCell component="th" scope="row">
-                            {row.name}
+                            {stu.studentId.firstName} {stu.studentId.lastName}
                           </TableCell>
                           <TableCell component="th" scope="row">
                             <Button
@@ -982,15 +1070,16 @@ const AssignmentCard = ({
                               }}
                               endIcon={<FileDownloadOutlinedIcon />}
                             >
-                              Download
+                              <a href={stu.file} target="_blank" style={{color:"green"}}>View Assignment</a>
                             </Button>
                           </TableCell>
                           <TableCell component="th" scope="row">
-                            <TextField type="number" helperText="Out of 50" value={34} />
+                          <TextField id="outlined-basic" onChange={(e) => setComment(e.target.value)} label="Comment..." variant="outlined" />
                           </TableCell>
                           <TableCell component="th" scope="row">
-                            <Button startIcon={<UpdateOutlinedIcon />} variant='outlined'>Update</Button>
+                             <Button disabled = {commentData?.comment ? true : false} onClick={() => SendComment(stu._id)}>Send</Button>
                           </TableCell>
+          
                         </TableRow>
                       ))}
                     </TableBody>

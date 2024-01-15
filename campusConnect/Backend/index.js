@@ -32,3 +32,6 @@ app.use("/api/ass",AssignmentRoute)
 const NoticeRoute= require("./Routes/NoticeRoute");
 app.use("/api/notice",NoticeRoute)
 
+const attendenceRoute= require("./Routes/AttendenceRoute");
+app.use("/api/att",attendenceRoute)
+

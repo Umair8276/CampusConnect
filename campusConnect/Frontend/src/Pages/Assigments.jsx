@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import AssignmentCard from "../Components/common/AssignmentCard";
 import { AppContext } from "../Context/AuthContext";
 import axios from "axios"
+import { Oval } from 'react-loader-spinner'
 
 const onGoingAssignments = [
   {
@@ -189,34 +190,33 @@ const Assigments = () => {
   const { user } = useContext(AppContext)
   const [data,setData] = useState([])
   const [facData,setFacData] = useState([])
+  const [loading,setLoading] = useState(true)
 
   function TabPanel(props) {
     const { children, value, page } = props;
     return <div>{page === value && children}</div>;
   }
   const getAssignments = () => {
-    axios.get(`http://localhost:5000/api/ass/getass/${user.branch}/${user.stu_class}`).then(res => {
-      // console.log(res.data)
+    axios.get(`http://localhost:5000/api/ass/getass/${user.branch}/${user.currentSem}`).then(res => {
+      console.log(res.data)
       setData(res.data.data)
+      setLoading(false)
     }).catch(err => {
       console.log(err)
     })
   }
 
   const getFacultyAss = () => {
-    axios.get(`http://localhost:5000/api/ass/getassbybranch/${user?.dept}`).then(res => {
+    axios.get(`http://localhost:5000/api/ass/getassbybranch/${user?._id}`).then(res => {
       console.log("getFacultyAss :",res.data)
       setFacData(res.data.ass)
+      setLoading(false)
     }).catch(err => {
       console.log(err)
     })
   }
 
-
- 
-
   useEffect(() => {
-    console.log("Data :",data)
     getFacultyAss()
     getAssignments()
   }, [])
@@ -293,6 +293,18 @@ const Assigments = () => {
                 }}
               >
                 {
+                  loading ?
+                  <div style={{marginLeft:"500px",marginTop:"150px"}}>
+                    <Oval
+                  visible={true}
+                  height="100"
+                  width="100"
+                  color="#4fa94d"
+                 ariaLabel="oval-loading"
+                
+                 />
+                  </div>
+                   :
                   data.length > 0
                   ?
 
@@ -302,7 +314,7 @@ const Assigments = () => {
                     title={assignment.content}
                     branch={assignment.branch}
                     subject={assignment.subject}
-                    batch={assignment.classes}
+                    sem={assignment.sem}
                     date={assignment.lastDate}
                     files={assignment.file}
                     id={assignment._id}
@@ -323,6 +335,7 @@ const Assigments = () => {
                 subject={assignment.subject}
                 batch={assignment.classes}
                 date={assignment.lastDate}
+                sem = {assignment.sem}
                 files={assignment.file}
                 id={assignment._id}
                 response = {assignment.response}
@@ -381,7 +394,7 @@ const Assigments = () => {
                     type={"history"}
                   />
                 ))}
-              </Box>{" "}
+              </Box>
             </TabPanel>
           </Box>
         </Box>

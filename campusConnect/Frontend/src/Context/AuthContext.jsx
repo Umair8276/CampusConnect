@@ -11,13 +11,14 @@ export const AppProvider = ({children}) => {
   let userInfo = JSON.parse(localStorage.getItem("loginUser"));
   const [state, dispatch] = useReducer(Reducer, userInfo);
   const [role,setRole] = useState("/login")
+  const [attendancePercentage,setAttendancePercentage] = useState("")
 
   useEffect(() => {
     localStorage.setItem("loginUser", JSON.stringify(state));
   }, [state]);
 
     return(
-        <AppContext.Provider value={{...state,dispatch,role,setRole}}>
+        <AppContext.Provider value={{...state,dispatch,role,setRole,attendancePercentage,setAttendancePercentage}}>
           {children}
         </AppContext.Provider>
     )

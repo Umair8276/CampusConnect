@@ -15,7 +15,7 @@ const assignmentSchema = new mongoose.Schema({
     file:{
         type:String,
     },
-    classes:{
+    sem:{
         type:String,
         required:true
     },

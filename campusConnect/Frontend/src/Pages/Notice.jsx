@@ -50,10 +50,10 @@ const {user} = useContext(AppContext)
             justifyContent:"space-between"
           }}
         >
-          <Tabs onChange={(e, value) => setValue(value)} value={value}>
+          {/* <Tabs onChange={(e, value) => setValue(value)} value={value}>
             <Tab label="For Student" />
             <Tab label="For Instructor" />
-          </Tabs>
+          </Tabs> */}
           {
              user.role=="student"
              ?

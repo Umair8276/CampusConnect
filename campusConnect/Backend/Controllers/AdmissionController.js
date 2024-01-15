@@ -72,15 +72,15 @@ const studentLogin = async(req,res) => {
       console.log(error)
     }
     if(stLogin){
-      // if(stLogin.password==password)
-      //   return res.send({msg:"Login Successfully"});
-      // else 
-      //   return res.send({msg:"Password is incorrect"});
-    return res.send({msg:"Login Successfully",user:stLogin})
-    }
-    else{
-      return res.send({msg:"Please Signup first than login"});
-    }
+      if(stLogin.password==password)
+        return res.send({msg:"Login Successfully",user:stLogin});
+      else 
+        return res.send({err:"Password is incorrect"});
+}
+else{
+    return res.send({err:"Please Signup first than login"});
+}
+// return res.send({msg:"Login Successfully",user:stLogin})
   }
 
 //   search student by class and branch

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Toolbar,
@@ -31,7 +31,9 @@ import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/material/styles";
 import {AppContext} from "../Context/AuthContext"
-import axios from "axios"
+import { Oval } from 'react-loader-spinner'
+import DownloadDoneIcon from '@mui/icons-material/DownloadDone';
+
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
   clipPath: "inset(50%)",
@@ -54,37 +56,37 @@ const Course = [
   {
     id: 1,
     label: "Computer ",
-    value: 1,
+    value: "Computer",
   },
   {
     id: 2,
     label: "Mechanical",
-    value: 2,
+    value: "Mechanical",
   },
   {
     id: 3,
     label: "Electronics",
-    value: 3,
+    value: "Electronics",
   },
   {
     id: 4,
     label: "Electrical",
-    value: 4,
+    value: "Electrical",
   },
   {
     id: 5,
     label: "Civil",
-    value: 5,
+    value: "Civil",
   },
   {
     id: 6,
     label: "Pharmacy",
-    value: 6,
+    value: "Pharmacy",
   },
   {
     id: 7,
     label: "BSC It",
-    value: 7,
+    value: "BSC It",
   },
 
 ];
@@ -102,6 +104,9 @@ const CreateAssignment = () => {
   const [startTime,setStartTime] = useState("")
   const [endTime,setEndTime] = useState("")
   const [file,setFile] = useState("");
+  const [sem,setSem] = useState("")
+  const [sub,setSub] = useState();
+  const [loading,setLoading] = useState()
 
 
   const [activeStep, setActiveStep] = React.useState(0);
@@ -115,26 +120,103 @@ const CreateAssignment = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const postAssignment = () => {
-    console.log(classes)
-    axios.post("http://localhost:5000/api/ass/assignment",{
-      faculty:user._id,
-      subject,
-      content:title,
-      classes,
-      branch,
-      file,
-      lastDate:endDate
-    }).then(res => {
-       console.log(res.data)
-    }).catch(err => {
-      console.log(err)
-    })
-     
-    handleNext()
+  const ChangeBatch = (event) => {
+    setBatch(event.target.value);
   }
 
+// Define an array of objects representing semester subjects in various engineering branches
+const engineeringSubjects = [
+  {
+    branch: 'Computer',
+    subjects: [
+      { semester: 1, subjects: ['Mathematics-I', 'Physics', 'Chemistry', 'Introduction to Programming'] },
+      { semester: 2, subjects: ['Mathematics-II', 'Digital Logic Design', 'Data Structures', 'Electrical Circuits'] },
+      { semester: 3, subjects: ['Computer Organization and Architecture', 'Database Management Systems', 'Object-Oriented Programming', 'Discrete Mathematics'] },
+      { semester: 4, subjects: ['Algorithms', 'Microprocessors', 'Operating Systems', 'Computer Networks'] },
+      // Add more semesters and subjects as needed
+    ]
+  },
+  {
+    branch: 'Mechanical Engineering',
+    subjects: [
+      // Define subjects for each semester in the mechanical engineering branch
+      { semester: 1, subjects: ['Mathematics-I', 'Physics', 'Chemistry', 'Introduction to Programming'] },
+      { semester: 2, subjects: ['Mathematics-II', 'Digital Logic Design', 'Data Structures', 'Electrical Circuits'] },
+      { semester: 3, subjects: ['Computer Organization and Architecture', 'Database Management Systems', 'Object-Oriented Programming', 'Discrete Mathematics'] },
+      { semester: 4, subjects: ['Algorithms', 'Microprocessors', 'Operating Systems', 'Computer Networks'] },
+    ]
+  },
+  {
+    branch: 'Electronics Engineering',
+    subjects: [
+      // Define subjects for each semester in the electronics engineering branch
+      { semester: 1, subjects: ['Mathematics-I', 'Physics', 'Chemistry', 'Introduction to Programming'] },
+      { semester: 2, subjects: ['Mathematics-II', 'Digital Logic Design', 'Data Structures', 'Electrical Circuits'] },
+      { semester: 3, subjects: ['Computer Organization and Architecture', 'Database Management Systems', 'Object-Oriented Programming', 'Discrete Mathematics'] },
+      { semester: 4, subjects: ['Algorithms', 'Microprocessors', 'Operating Systems', 'Computer Networks'] },
+    ]
+  },
+  {
+    branch: 'Civil Engineering',
+    subjects: [
+      // Define subjects for each semester in the civil engineering branch
+      { semester: 1, subjects: ['Mathematics-I', 'Physics', 'Chemistry', 'Introduction to Programming'] },
+      { semester: 2, subjects: ['Mathematics-II', 'Digital Logic Design', 'Data Structures', 'Electrical Circuits'] },
+      { semester: 3, subjects: ['Computer Organization and Architecture', 'Database Management Systems', 'Object-Oriented Programming', 'Discrete Mathematics'] },
+      { semester: 4, subjects: ['Algorithms', 'Microprocessors', 'Operating Systems', 'Computer Networks'] },
+    ]
+  },
+  // Add more branches as needed
+];
+
+// Accessing information from the array
+// console.log('Computer Engineering - Subjects in Semester 1:', engineeringSubjects[0].subjects[0].subjects.join(', '));
+// console.log('Mechanical Engineering - Subjects in Semester 1:', engineeringSubjects[1].subjects[0].subjects.join(', '));
+   function getSubjects(branch,sem){
+    let filterSubjects;
+    engineeringSubjects.forEach(sub => {
+      if(sub.branch == branch){
+        filterSubjects = sub.subjects.filter( semSub => {
+          if(semSub.semester == sem){
+            console.log("Foreach SemSub" , semSub)
+            setSub(semSub);
+            return semSub
+          }
+
+        })
+      }
+      
+    })
+    // setSub(filterSubjects)
+    return filterSubjects;
+   }
+
+   useEffect( () => {
+    console.log(batch.substr(0,3))
+   getSubjects(branch,sem)
+   },[branch,sem])
+
+
+  // const postAssignment = () => {
+  //   axios.post("http://localhost:5000/api/ass/assignment",{
+  //     faculty:user._id,
+  //     subject,
+  //     content:title,
+  //     sem,
+  //     branch,
+  //     file,
+  //     lastDate:endDate
+  //   }).then(res => {
+  //      console.log(res.data)
+  //   }).catch(err => {
+  //     console.log(err)
+  //   })
+     
+  //   handleNext()
+  // }
+
   const handleUpload = async (url) => {
+    setLoading(true)
     const data = new FormData();
     data.append("file", url);
     data.append("upload_preset", "pehzflst");
@@ -147,7 +229,9 @@ const CreateAssignment = () => {
       .then((data) => {
         console.log(data.url);
         setFile(data.url)
+        setLoading(false)
       });
+      
   };
 
   return (
@@ -246,7 +330,7 @@ const CreateAssignment = () => {
                 sx={{
                   width: "28rem",
                   height: "fit-content",
-                  margin: "5rem auto",
+                  margin: "2rem auto",
                   border: "1px solid #E1E1E1",
                   borderRadius: "8px",
                   padding: "2rem 2rem 1rem 2rem",
@@ -262,12 +346,12 @@ const CreateAssignment = () => {
                     margin: "1rem 0rem",
                   }}
                 >
-                  <InputLabel id="batch">branch</InputLabel>
+                  <InputLabel id="branch">branch</InputLabel>
                   <Select
-                    labelId="batch"
+                    labelId="branch"
                     value={branch}
                     label="branch"
-                    onChange={(e) => setBranch(e.target.value)}
+                    onChange={(e) =>setBranch(e.target.value)}
                   >
                     <MenuItem value={"Computer"}>Computer</MenuItem>
                     <MenuItem value={"Mechanical"}>Mechanical</MenuItem>
@@ -282,17 +366,110 @@ const CreateAssignment = () => {
                   }}
                 >
                   <InputLabel id="batch">Class</InputLabel>
-                  <Select
-                    labelId="class"
-                    value={classes}
-                    label="Class"
-                    onChange={(e) => setClasses(e.target.value)}
+                  {
+                    branch == "Computer"
+                    ?
+                    <Select
+                    labelId="batch"
+                    value={batch}
+                   onChange={(e) => ChangeBatch(e)}
+                    label="Batch"
+                   
                   >
-                    <MenuItem value={"FE"}>FE</MenuItem>
-                    <MenuItem value={"SE"}>SE</MenuItem>
-                    <MenuItem value={"TE"}>TE</MenuItem>
-                    <MenuItem value={"BE"}>BE</MenuItem>
+                    <MenuItem value={"FECO"}>FECO</MenuItem>
+                    <MenuItem value={"SECO"}>SECO</MenuItem>
+                    <MenuItem value={"TECO"}>TECO</MenuItem>
+                    <MenuItem value={"BECO"}>BECO</MenuItem>
                   </Select>
+                  :
+                  branch == "Mechanical"
+                  ?
+                  <Select
+                  labelId="batch"
+                  value={batch}
+                  onChange={(e) => ChangeBatch(e)}
+                  label="Batch"
+                
+                >
+                  <MenuItem value={"FEME"}>FEME</MenuItem>
+                  <MenuItem value={"SEME"}>SEME</MenuItem>
+                  <MenuItem value={"TEME"}>TEME</MenuItem>
+                  <MenuItem value={"BEME"}>BEME</MenuItem>
+                </Select>
+                :
+                branch == "Civil"
+                ?
+                <Select
+                labelId="batch"
+                value={batch}
+                onChange={(e) => ChangeBatch(e)}
+                label="Batch"
+               
+              >
+                <MenuItem value={"FECE"}>FECE</MenuItem>
+                <MenuItem value={"SECE"}>SECE</MenuItem>
+                <MenuItem value={"TECE"}>TECE</MenuItem>
+                <MenuItem value={"BECE"}>BECE</MenuItem>
+              </Select>
+              :
+              branch=="Electronics"
+              ?
+              <Select
+              labelId="batch"
+              value={batch}
+              onChange={(e) => ChangeBatch(e)}
+              label="Batch"
+            
+            >
+              <MenuItem value={"FEET"}>FEET</MenuItem>
+              <MenuItem value={"SEET"}>SEET</MenuItem>
+              <MenuItem value={"TEET"}>TEET</MenuItem>
+              <MenuItem value={"BEET"}>BEET</MenuItem>
+            </Select>
+            :
+            branch == "Pharmacy"
+            ?
+            <Select
+            labelId="batch"
+            value={batch}
+            onChange={(e) => ChangeBatch(e)}
+            label="Batch"
+           
+          >
+            <MenuItem value={"FEPH"}>FEPH</MenuItem>
+            <MenuItem value={"SEPH"}>SEPH</MenuItem>
+            <MenuItem value={"TEPH"}>TEPH</MenuItem>
+            <MenuItem value={"BEPH"}>BEPH</MenuItem>
+          </Select>
+          :
+          branch == "BSC It"
+          ?
+          <Select
+          labelId="batch"
+          value={batch}
+          onChange={(e) => ChangeBatch(e)}
+          label="Batch"
+         
+        >
+          <MenuItem value={"FEIT"}>FEIT</MenuItem>
+          <MenuItem value={"SEIT"}>SEIT</MenuItem>
+          <MenuItem value={"TEIT"}>TEIT</MenuItem>
+          <MenuItem value={"BEIT"}>BEIT</MenuItem>
+        </Select>
+        :
+        <Select
+        labelId="batch"
+        value={batch}
+        onChange={(e) => ChangeBatch(e)}
+        label="Batch"
+        
+      >
+        <MenuItem value={"FEET"}>FEET</MenuItem>
+        <MenuItem value={"SEET"}>SEET</MenuItem>
+        <MenuItem value={"TEET"}>TEET</MenuItem>
+        <MenuItem value={"BEET"}>BEET</MenuItem>
+      </Select>
+}
                 </FormControl>
 
                 </FormControl>
@@ -304,13 +481,85 @@ const CreateAssignment = () => {
               <Box
                 sx={{
                   width: "28rem",
-                  height: "15rem",
-                  margin: "5rem auto",
+                  height: "content-fit",
+                  margin: "2rem auto",
                   border: "1px solid #E1E1E1",
                   borderRadius: "8px",
                   padding: "2rem 2rem 1rem 2rem",
                 }}
               >
+                  <Typography fontWeight={500} fontSize={26}>
+                  Select Sem
+                </Typography>
+                <FormControl
+                  fullWidth
+                  sx={{
+                    margin: "1rem 0rem",
+                  }}
+                >
+                  <InputLabel id="batch">Sem</InputLabel>
+                 
+                    {
+
+                      batch.substr(0,2) == "FE"
+                      ?
+                      <Select
+                    labelId="sem"
+                    value={sem}
+                    label="sem"
+                    onChange={(e) => setSem(e.target.value)}
+                  >
+                     <MenuItem value={"1"}>1</MenuItem>
+                        <MenuItem value={"2"}> 2</MenuItem>
+                    </Select>
+                      
+                      :
+
+                      batch.substr(0,2) == "SE"
+                      ?
+                      <Select
+                      labelId="sem"
+                      value={sem}
+                      label="sem"
+                      onChange={(e) => setSem(e.target.value)}
+                    >
+                       <MenuItem value={"3"}>3</MenuItem>
+                          <MenuItem value={"4"}> 4</MenuItem>
+                      </Select>
+                      :
+
+                      batch.substr(0,2) == "TE"
+                      ?
+                      <Select
+                      labelId="sem"
+                      value={sem}
+                      label="sem"
+                      onChange={(e) => setSem(e.target.value)}
+                    >
+                       <MenuItem value={"5"}>5</MenuItem>
+                          <MenuItem value={"6"}> 6</MenuItem>
+                      </Select>
+                      :
+
+                      batch.substr(0,2) == "BE"
+                      ?
+                      <Select
+                      labelId="sem"
+                      value={sem}
+                      label="sem"
+                      onChange={(e) => setSem(e.target.value)}
+                    >
+                       <MenuItem value={"7"}>7</MenuItem>
+                          <MenuItem value={"8"}> 8</MenuItem>
+                      </Select>
+                      :
+
+                      <></>
+                    }
+                  
+                </FormControl>
+
+
                 <Typography fontWeight={500} fontSize={26}>
                   Select Subject
                 </Typography>
@@ -327,22 +576,19 @@ const CreateAssignment = () => {
                     label="subject"
                     onChange={(e) => setSubject(e.target.value)}
                   >
-                    <MenuItem value={"EM-3"}>Em-3</MenuItem>
-                    <MenuItem value={"Mechanics"}>Mechanics </MenuItem>
-                    <MenuItem value={"BEE"}>BEE</MenuItem>
-                    <MenuItem value={"Engg Drawing"}>Engg Drawing</MenuItem>
+                    {
+                      sub?.subjects?.map( (sub,i) => {
+                        return (
+                          
+                             <MenuItem key={i} value={sub}>{sub}</MenuItem>
+                         
+                        )
+                      })
+                    }
+                  
                   </Select>
                 </FormControl>
-             
-                <FormControl
-                  sx={{
-                    height: "20rem",
-                    overflowY: "scroll",
-                    marginTop: "1rem",
-                  }}
-                >
-                  
-                </FormControl>
+           
               </Box>
             </>
           )}
@@ -352,7 +598,7 @@ const CreateAssignment = () => {
                 sx={{
                   width: "28rem",
                   // height: "fit-content",
-                  margin: "5rem auto",
+                  margin: "2rem auto",
                   border: "1px solid #E1E1E1",
                   borderRadius: "8px",
                   padding: "2rem 2rem 1rem 2rem",
@@ -509,11 +755,31 @@ const CreateAssignment = () => {
                   fullWidth
                   sx={{
                     mt: "2rem",
+                    marginRight:"10px"
                   }}
                 >
                   Upload file
+                  {
+                  loading
+                  ?
+                  <Oval
+                    visible={true}
+                    height="20"
+                    width="20"
+                    color="#4fa94d"
+                   ariaLabel="oval-loading"
+                  
+                   />
+                   :
+                   loading==false
+                   ?
+                   <DownloadDoneIcon color="green"/>
+                   :
+                   <></>
+                }
                   <VisuallyHiddenInput type="file" onChange={(e)=> handleUpload(e.target.files[0])} />
                 </Button> 
+             
               </Box>
             </>
           )}
@@ -523,7 +789,7 @@ const CreateAssignment = () => {
                 sx={{
                   width: "28rem",
                   height: "fit-content",
-                  margin: "5rem auto",
+                  margin: "2rem auto",
                   border: "1px solid #E1E1E1",
                   borderRadius: "8px",
                   padding: "2rem 2rem 1rem 2rem",
@@ -561,7 +827,7 @@ const CreateAssignment = () => {
                     color: "#9A9A9A",
                   }}
                 >
-                  class : {classes}
+                  class : {sem}
                 </Typography>
                 {/* <Typography fontSize={18} m='1rem 0rem' fontWeight={450}>Total Marks : 50</Typography> */}
                 <Stack

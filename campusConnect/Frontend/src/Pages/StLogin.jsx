@@ -9,16 +9,27 @@ import EmailIcon from '@mui/icons-material/Email';
 import HttpsIcon from '@mui/icons-material/Https';
 import { AppContext } from './../Context/AuthContext';
 import axios from 'axios';
-
+import { toast } from 'react-toastify';
+import { Oval } from 'react-loader-spinner'
 
 const StLogin = () => {
   const [error,setError] = useState("");
   const [email,setEmail] = useState("");
   const [password,setPassword] = useState("");
+  const [isLogin,setIsLogin] = useState()
   const {dispatch} = useContext(AppContext)
 
+  // Styles
+const inputStyles= {
+  "& label":{
+    marginLeft:"30px"
+  }
+
+}
+
+
   const login = (e) => {
-    console.log( email,password)
+    // setIsLogin(true)
     if(!email || !password){ 
       setError("Please fill the Credential")
       setTimeout( () => {
@@ -26,12 +37,22 @@ const StLogin = () => {
       },2000)
       
     }
-
      axios.post("http://localhost:5000/api/stu/login",{
       email,
       password
      }).then(res => {
       console.log(res.data)
+      if(res.data.err){
+        setError(res.data.err)
+        setTimeout( () => {
+          setError("")
+        },2000)
+        return 
+      }
+      // setIsLogin(false)
+      toast.success("Login Successfully", {
+        autoClose: 1500, 
+      })
       dispatch({type:"LOGIN" ,payload:res.data.user})
      }).catch(err => {
       setError(err)
@@ -48,30 +69,7 @@ const StLogin = () => {
           <img src={bg} />
         </div>
         <div className="formContainer">
-          {/* <form>
-				<img src={avatar}/>
-				<h2 className="title">Welcome</h2>
-           		<div className="input-div one">
-           		   <div className="i">
-           		   		<i className="fas fa-user"></i>
-           		   </div>
-           		   <div className="div">
-           		   		<h5>Username</h5>
-           		   		<input type="text" className="input"/>
-           		   </div>
-           		</div>
-           		<div className="input-div pass">
-           		   <div className="i"> 
-           		    	<i className="fas fa-lock"></i>
-           		   </div>
-           		   <div className="div">
-           		    	<h5>Password</h5>
-           		    	<input type="password" className="input"/>
-            	   </div>
-            	</div>
-            	<a href="#">Forgot Password?</a>
-            	<input type="submit" className="btn" value="Login"/>
-            </form> */}
+
 
 
           <div className='top'>
@@ -80,7 +78,7 @@ const StLogin = () => {
 
             {
             error?
-            <div style={{backgroundColor:"#EAB543",padding:"0.8rem",borderRadius:"5px",width:"55%"}}>
+            <div style={{backgroundColor:"#EAB543",padding:"0.8rem",borderRadius:"5px",width:"100%"}}>
             <h4 style={{color:"red"}}>{error}</h4>
             </div>
             :
@@ -95,18 +93,30 @@ const StLogin = () => {
               noValidate
               autoComplete="off"
             >
-              <div style={{display:"flex",alignItems:"center"}}>
-              <EmailIcon/>
-              <TextField id="filled-basic" label="Email" value={email} onChange={(e) =>setEmail(e.target.value)} variant="filled"  />
+                 <div style={{display:"flex",alignItems:"center",position:"relative"}}>
+              <EmailIcon style={{position:"absolute" , left:"5"}}/>
+              <TextField id="filled-basic" label="Email" value={email} sx={{width:"100%",border:"none",...inputStyles}}  onChange={(e) =>setEmail(e.target.value)}  />
               </div>
 
-              <div style={{display:"flex",alignItems:"center"}}>
-              <HttpsIcon/> 
-              <TextField id="filled-basic" label="Password" value={password} variant="filled" onChange={(e) =>setPassword(e.target.value)} />
+              <div style={{display:"flex",alignItems:"center",position:"relative"}}>
+              <HttpsIcon style={{position:"absolute" , left:"5"}}/> 
+              <TextField id="filled-basic" type={"password"} label="Password" value={password} sx={{width:"100%",border:"none",...inputStyles}} onChange={(e) =>setPassword(e.target.value)} />
               </div>
               <div >
               <a href="#">Forgot Password?</a>
-            	<input className="btnn" value="Login" onClick={() =>login()}/>
+            	<input className="btnn" value={isLogin ? 
+                  <Oval
+                  visible={true}
+                  height="30"
+                  width="30"
+                  color="#4fa94d"
+                 ariaLabel="oval-loading"
+                 wrapperStyle={{}}
+                 wrapperClass=""
+                 />
+                 :
+
+              "Login"} onClick={() =>login()}/>
               </div>
             
             </Box>

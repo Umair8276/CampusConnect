@@ -16,9 +16,11 @@ const noticeSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    classes:{
+    sem:{
         type:String,
-        required:true
+    },
+    class:{
+        type:String,
     },
    
 },{timestamps:true})

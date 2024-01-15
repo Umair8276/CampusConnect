@@ -11,11 +11,13 @@ const createNotice = async(req,res) => {
     return res.send({notice})
 }
 
+// Get Student Notice 
 const getNotice = async(req,res) => {
-    const {branch,classes} = req.params;
+    let  {branch,classes,sem} = req.params;
+    // console.log(req.params)
     let notice;
     try {
-        notice = await noticeModal.find({branch,classes}).populate("faculty")
+        notice = await noticeModal.find({branch,class:classes,sem })
     } catch (error) {
         console.log(error)
     }
@@ -25,7 +27,7 @@ const getNotice = async(req,res) => {
     return res.send({err:"Something went wrong"})
 }
 
-// Showing notice to faculty After upload
+// Showing notice to faculty After upload || Faculty Notice
 const getFacNotice = async(req,res) => {
     const {branch} = req.params;
     let notice;

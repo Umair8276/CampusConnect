@@ -22,12 +22,14 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../../Context/AuthContext";
 import axios from "axios";
+import { Oval } from 'react-loader-spinner'
 
 const NoticeCard = () => {
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
   const [notices,setNotices] = useState([])
   const [singleNotice,setSingleNotice] = useState([])
+  const [loading,setLoading] = useState(true)
   const {user} = useContext(AppContext)
 
   const getNotice = () => {
@@ -35,23 +37,26 @@ const NoticeCard = () => {
     .then(res => {
       console.log(res.data)
       setNotices(res.data.notice)
+      setLoading(false)
     }).catch(err => {
       console.log(err)
     })
   }
   const getStuNotice = () => {
-    axios.get(`http://localhost:5000/api/notice/getnotice/${user.branch}/${user.stu_class}`)
+    axios.get(`http://localhost:5000/api/notice/getnotice/${user.branch}/${user.stu_class}/${user.currentSem}`)
     .then(res => {
-      console.log(res.data)
+      console.log("Student NOtice",res.data.notice)
       setNotices(res.data.notice)
+      setLoading(false)
     }).catch(err => {
       console.log(err)
     })
   }
   useEffect( () => {
-    getNotice()
-    getStuNotice()
-    
+    if(user.role!="student")
+       getNotice()
+    else
+       getStuNotice()
   },[]);
 
   const deleteNotice = (id) => {
@@ -77,8 +82,23 @@ const NoticeCard = () => {
      })
   }
   return (
-    <Box style={{display:"flex",flexDirection:"row",gap:"12px"}}>
+    <Box style={{display:"flex",flexDirection:"row",gap:"12px",flexWrap:"wrap"}}>
     {
+      loading
+      ?
+      <div style={{marginLeft:"500px",marginTop:"150px"}}>
+        <Oval
+        visible={true}
+        height="100"
+        width="100"
+        color="#4fa94d"
+       ariaLabel="oval-loading"
+       wrapperStyle={{}}
+       wrapperClass=""
+       />
+      </div>
+      :
+
       notices.map( (notices,i) => {
         return (
           <Box  style={{display:"flex",flexDirection:"row"}}>
@@ -118,7 +138,7 @@ const NoticeCard = () => {
               color: "#9A9A9A",
             }}
           >
-            Class : {notices.classes}
+            Class : {notices.class}
           </Typography>
   
           <Stack
@@ -189,7 +209,7 @@ const NoticeCard = () => {
               Branch:{singleNotice.branch}
             </Typography>
             <Typography color="#D3D3D3" fontSize={20} fontWeight={450}>
-              Class : {singleNotice.classes}
+              Class : {singleNotice.class}
             </Typography>
             <Stack
               sx={{
@@ -211,11 +231,12 @@ const NoticeCard = () => {
               Description:
             </Typography>
             <Box fullWidth sx={{
-                height:'20rem',
+                height:'auto-fit',
                 overflowY:'scroll',
             }}>
                 <Typography>
-                    Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quibusdam maiores culpa vitae nobis ducimus, nihil, odio, dolorem praesentium vel illo ratione recusandae a. Quae sequi voluptatum illo deleniti! Nemo pariatur fuga quo culpa consequuntur eveniet illum eum magnam cumque quia, id blanditiis iusto praesentium error accusamus temporibus reprehenderit, dolorem vel aspernatur quos quisquam dolor enim animi! Beatae illum obcaecati nihil accusantium natus autem voluptatibus, illo, omnis hic provident nemo possimus ad accusamus eius reiciendis saepe ab, doloremque ratione debitis quibusdam cumque dolore magni sed eligendi. Illum eaque maxime inventore? Aperiam omnis debitis nam, saepe labore sapiente repellat ratione facilis voluptas.
+                    {/* Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quibusdam maiores culpa vitae nobis ducimus, nihil, odio, dolorem praesentium vel illo ratione recusandae a. Quae sequi voluptatum illo deleniti! Nemo pariatur fuga quo culpa consequuntur eveniet illum eum magnam cumque quia, id blanditiis iusto praesentium error accusamus temporibus reprehenderit, dolorem vel aspernatur quos quisquam dolor enim animi! Beatae illum obcaecati nihil accusantium natus autem voluptatibus, illo, omnis hic provident nemo possimus ad accusamus eius reiciendis saepe ab, doloremque ratione debitis quibusdam cumque dolore magni sed eligendi. Illum eaque maxime inventore? Aperiam omnis debitis nam, saepe labore sapiente repellat ratione facilis voluptas. */}
+                    {singleNotice.content}
                 </Typography>
             </Box>
             <Typography marginTop={5} fontWeight={450} fontSize={20}>
